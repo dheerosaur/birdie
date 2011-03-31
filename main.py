@@ -56,6 +56,21 @@ class Tweet(db.Model):
     username = db.StringProperty(required=True)
 
 # generate
+class BaseRequestHandler(webapp.RequestHandler):
+    """Supplies a generate method which provides common template variables
+    """
+    def generate(self, template_name, template_values={}):
+        homepage = 'http://' + self.request.host + '/'
+        values = {
+                'request': self.request,
+                'user' : users.get_current_user(),
+                'login_url': users.create_login_url(homepage)
+                'logout_url': users.create_logout_url(homepage)
+                }
+        values.update(template_values)
+        directory = os.path.dirname(__file__)
+        path = os.path.join(directory, os.path.join('templates', template_name))
+        self.response.out.write(template.render(path, values, debug=_DEBUG))
 
 # handlers
 
