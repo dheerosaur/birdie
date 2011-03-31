@@ -36,7 +36,7 @@ class Bird(db.Model):
         return bird
 
     @staticmethod
-    def get_current_by_username(self, username):
+    def get_by_username(self, username):
         bird = Bird.gql("WHERE username = :username", username=username)
         return bird
 
@@ -109,7 +109,7 @@ class UserTimeLineHandler(BaseRequestHandler):
     """Gets the timeline of a user.
     """
     def get(self, username):
-        bird = Bird.get_current_by_username(username)
+        bird = Bird.get_by_username(username)
         if not bird:
             self.error(403)
             return
@@ -122,17 +122,18 @@ class TweetHandler(BaseRequestHandler):
     """Posts a tweet."""
     def post(self):
         bird = Bird.get_current_bird()
-        tweet = Tweet(message=self.request.get('message'),
+        bird.no_tweets += 1
+        bird.put()
+        Tweet(message=self.request.get('message'),
                 author=bird,
-                username=bird.username)
-        tweet.put()
+                username=bird.username).put()
 
 class FollowHandler(BaseRequestHandler):
     """Adds a relation."""
     def post(self, username):
         follower = Bird.get_current_bird()
         follower.no_following += 1
-        following = Bird.get_current_by_username(username)
+        following = Bird.get_by_username(username)
         following.no_followers += 1
         follower.put()
         following.put()
