@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block body %}
+  <form action="/register" method="post">
+      <input type="hidden" name="next" value="{{ request.uri|escape }}"/>
+      <input type="text" name="username" value="{{ user.nickname }}" />
+      <textarea name="about" value=""></textarea>
+      <input type="submit" value="Create" />
+  </form>
+
+{% endblock %}
