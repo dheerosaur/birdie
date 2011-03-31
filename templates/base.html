@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>{% block title %}Birdie{% endblock %}</title>
+    <link href="/static/css/base.css" rel="stylesheet" type="text/css"/>
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <div id="container">
+        <header id="header">
+            {% block header %}
+            <h1 class="title"><a href="/"><img src="/static/images/logo.png" alt="Google
+                    Wiki"/></a></h1>
+            <div class="login">
+                {% if user %}
+                <span class="item nickname">{{ user.nickname }}</span> |
+                <span class="item"><a href="{{ logout_url|escape }}">Sign out</a></span>
+                {% else %}
+                <span class="item"><a href="{{ login_url|escape }}">Sign in</a></span>
+                {% endif %}
+            </div>
+            {% endblock %}
+        </header>
+        <div id="main">
+            {% block body %}{% endblock %}
+        </div>
+        <footer>
+            {% block footer %}{% endblock %}
+        </footer>
+    </div>
+</body>
+</html>

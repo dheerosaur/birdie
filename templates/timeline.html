@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if user %}
+        My Timeline
+    {% else %}
+        {{ bird.username }}'s Timeline
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+    <div id="userdetails">
+        <h2>{{ bird.username }}</h2>
+        <p>{{ bird.about }}</p>
+        <ul id="stats">
+            <li>Tweets {{ bird.no_tweets }}</li>
+            <li>Following {{ bird.no_following }}</li>
+            <li>Followers {{ bird.no_followers }}</li>
+            <li>Member since {{ bird.joined|date:"M, Y" }}</li>
+        </ul>
+    </div>
+        
+    <div id="tweets">
+        {% for tweet in tweets %}
+        <div class="tweet">
+            <span class="username">{{ tweet.username }}</span>
+            <span class="message">{{ tweet.message }}</span>
+            <span class="pub_time">{{ tweet.published|date:"M, y" }}</span>
+        </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}
