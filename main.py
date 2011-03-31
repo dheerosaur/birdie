@@ -21,31 +21,31 @@ class Bird(db.Model):
     A username is generated after checking the availability. Currently logs in using Google
     account."""
     account = db.UserProperty(auto_current_user_add=True)
-    username = db.StringProperty()
-    about = db.StringProperty()
+    username = db.StringProperty(default='')
+    about = db.StringProperty(default='')
     joined = db.DateTimeProperty(auto_now_add=True)
     protected = db.BooleanProperty(default=False)
-    no_tweets = db.IntegerProperty()
-    no_followers = db.IntegerProperty()
-    no_following = db.IntegerProperty()
+    no_tweets = db.IntegerProperty(default=0)
+    no_followers = db.IntegerProperty(default=0)
+    no_following = db.IntegerProperty(default=0)
 
     @staticmethod
-    def get_current_bird(self):
+    def get_current_bird():
         user = users.get_current_user()
-        bird = Bird.gql("WHERE account = :user", user=user)
+        bird = Bird.gql("WHERE account = :user", user=user).get()
         return bird
 
     @staticmethod
-    def get_by_username(self, username):
-        bird = Bird.gql("WHERE username = :username", username=username)
+    def get_by_username(username):
+        bird = Bird.gql("WHERE username = :username", username=username).get()
         return bird
 
 class Relation(db.Model):
     """Who follows Whom.
 
     A relation is added whenever a user follows another user"""
-    follower = db.ReferenceProperty(Bird)
-    following = db.ReferenceProperty(Bird)
+    follower = db.ReferenceProperty(Bird, collection_name='followers')
+    following = db.ReferenceProperty(Bird, collection_name='following')
 
 class Tweet(db.Model):
     """A tweet by a bird.
@@ -64,7 +64,7 @@ class BaseRequestHandler(webapp.RequestHandler):
         values = {
                 'request': self.request,
                 'user' : users.get_current_user(),
-                'login_url': users.create_login_url(homepage)
+                'login_url': users.create_login_url(homepage),
                 'logout_url': users.create_logout_url(homepage)
                 }
         values.update(template_values)
@@ -80,11 +80,11 @@ class TimeLineHandler(BaseRequestHandler):
     @login_required
     def get(self):
         bird = Bird.get_current_bird()
-        if not bird.username:
+        if not bird:
+            Bird().put()
             self.redirect('/register')
-        following = bird.following_set.all()
-        tweets = Tweet.gql("WHERE author in :following", following=following).order(
-                "-published")
+        following = bird.following.fetch(0)
+        tweets = Tweet.gql("WHERE author in :following ORDER BY published DESC", following=following).fetch(20)
         self.generate("timeline.html", {
             'tweets': tweets,
             'bird': bird })
@@ -94,16 +94,14 @@ class RegisterHandler(BaseRequestHandler):
     """
     @login_required
     def get(self):
-        bird = Bird.get_current_bird()
-        self.generate("register.html", {
-            'bird': bird })
+        self.generate("register.html")
 
-    @login_required
     def post(self):
         bird = Bird.get_current_bird()
         bird.username = cgi.escape(self.request.get('username'))
         bird.about = cgi.escape(self.request.get('about'))
         bird.put()
+        self.redirect('/')
 
 class UserTimeLineHandler(BaseRequestHandler):
     """Gets the timeline of a user.
@@ -127,6 +125,7 @@ class TweetHandler(BaseRequestHandler):
         Tweet(message=self.request.get('message'),
                 author=bird,
                 username=bird.username).put()
+        self.redirect(self.request.get('next'))
 
 class FollowHandler(BaseRequestHandler):
     """Adds a relation."""
