@@ -1,11 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}
-    {% if user %}
-        My Timeline
-    {% else %}
-        {{ bird.username }}'s Timeline
-    {% endif %}
+{{ bird.username }}'s Timeline
 {% endblock %}
 
 {% block body %}
@@ -20,18 +16,18 @@
         </ul>
     </div>
 
-    <form action="tweet" method="post">
-        <input type="hidden" name="next" value="{{ request.uri|escape }}" />
-        <textarea rows="2" cols="80" name="message" value=""></textarea>
-        <input type="submit" value="Share" />
-    </form>
-        
+    {% block follow_unfollow %}
+    {% endblock %}
+
+    {% block share %}
+    {% endblock %}
+
     <div id="tweets">
         {% for tweet in tweets %}
         <div class="tweet">
-            <span class="username">{{ tweet.username }}</span>
+            <a class="username" href="/user/{{tweet.username}}">{{ tweet.username }}</a>
             <span class="message">{{ tweet.message }}</span>
-            <span class="pub_time">{{ tweet.published|date:"M, y" }}</span>
+            <span class="pub_time">at {{ tweet.published|date:"P \- D, M d" }}</span>
         </div>
         {% endfor %}
     </div>

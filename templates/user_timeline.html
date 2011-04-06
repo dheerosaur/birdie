@@ -1,0 +1,16 @@
+{% extends "timeline.html" %}
+{% block follow_unfollow %}
+    {% if is_following %}
+    <form action="/unfollow" method="post">
+        <input type="hidden" name="next" value="{{ request.uri|escape }}" />
+        <input type="hidden" name="username" value="{{ bird.username }}" />
+        <input type="submit" value="Unfollow"/>
+    </form>
+    {% else %}
+    <form action="/follow" method="post">
+        <input type="hidden" name="next" value="{{ request.uri|escape }}" />
+        <input type="hidden" name="username" value="{{ bird.username }}" />
+        <input type="submit" value="Follow"/>
+    </form>
+    {% endif %}
+{% endblock %}

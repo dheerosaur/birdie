@@ -1,0 +1,14 @@
+{% extends "timeline.html" %}
+{% block title %}
+    Your Timeline
+{% endblock %}
+
+
+{% block share %}
+    <form action="/tweet" method="post">
+        <input type="hidden" name="next" value="{{ request.uri|escape }}" />
+        <textarea rows="2" cols="80" name="message" value=""></textarea>
+        <input type="submit" value="Share" />
+    </form>
+{% endblock %}
+        
