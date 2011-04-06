@@ -21,13 +21,15 @@ class Bird(db.Model):
     A username is generated after checking the availability. Currently logs in using Google
     account."""
     account = db.UserProperty(auto_current_user_add=True)
-    username = db.StringProperty(default='')
-    about = db.StringProperty(default='')
+    username = db.StringProperty()
+    about = db.StringProperty()
     joined = db.DateTimeProperty(auto_now_add=True)
     protected = db.BooleanProperty(default=False)
     no_tweets = db.IntegerProperty(default=0)
     no_followers = db.IntegerProperty(default=0)
     no_following = db.IntegerProperty(default=0)
+    followers_list = db.ListProperty(str)
+    following_list = db.ListProperty(str)
 
     @staticmethod
     def get_current_bird():
@@ -40,12 +42,12 @@ class Bird(db.Model):
         bird = Bird.gql("WHERE username = :username", username=username).get()
         return bird
 
-class Relation(db.Model):
-    """Who follows Whom.
-
-    A relation is added whenever a user follows another user"""
-    follower = db.ReferenceProperty(Bird, collection_name='followers')
-    following = db.ReferenceProperty(Bird, collection_name='following')
+#class Relation(db.Model):
+#    """Who follows Whom.
+#
+#    A relation is added whenever a user follows another user"""
+#    follower = db.ReferenceProperty(Bird, collection_name='followers')
+#    following = db.ReferenceProperty(Bird, collection_name='following')
 
 class Tweet(db.Model):
     """A tweet by a bird.
@@ -64,7 +66,7 @@ class BaseRequestHandler(webapp.RequestHandler):
         values = {
                 'request': self.request,
                 'user' : users.get_current_user(),
-                'login_url': users.create_login_url(homepage),
+                'login_url': users.create_login_url(self.request.uri),
                 'logout_url': users.create_logout_url(homepage)
                 }
         values.update(template_values)
@@ -81,11 +83,12 @@ class TimeLineHandler(BaseRequestHandler):
     def get(self):
         bird = Bird.get_current_bird()
         if not bird:
-            Bird().put()
             self.redirect('/register')
-        following = bird.following.fetch(0)
-        tweets = Tweet.gql("WHERE author in :following ORDER BY published DESC", following=following).fetch(20)
-        self.generate("timeline.html", {
+            return
+        following = bird.following_list
+        following.append(bird.username)
+        tweets = Tweet.gql("WHERE username in :following ORDER BY published DESC", following=following).fetch(20)
+        self.generate("curr_user_timeline.html", {
             'tweets': tweets,
             'bird': bird })
 
@@ -94,13 +97,18 @@ class RegisterHandler(BaseRequestHandler):
     """
     @login_required
     def get(self):
-        self.generate("register.html")
+        if Bird.get_current_bird():
+            self.redirect('/')
+            return
+        self.generate('register.html', {'error': self.request.get('error')})
 
     def post(self):
-        bird = Bird.get_current_bird()
-        bird.username = cgi.escape(self.request.get('username'))
-        bird.about = cgi.escape(self.request.get('about'))
-        bird.put()
+        username = self.request.get('username')
+        if Bird.get_by_username(username):
+            self.redirect('/register?error=username+exists')
+            return
+        about = self.request.get('about')
+        Bird(username=username, about=about).put()
         self.redirect('/')
 
 class UserTimeLineHandler(BaseRequestHandler):
@@ -108,12 +116,15 @@ class UserTimeLineHandler(BaseRequestHandler):
     """
     def get(self, username):
         bird = Bird.get_by_username(username)
+        curr_bird = Bird.get_current_bird()
+        is_following = bird.username in curr_bird.following_list
         if not bird:
             self.error(403)
             return
-        tweets = Tweet.gql("WHERE username = :username").fetch(20)
-        self.generate("timelin.html", {
+        tweets = Tweet.gql("WHERE username = :username", username=username).fetch(20)
+        self.generate("user_timeline.html", {
             'tweets': tweets,
+            'is_following': is_following,
             'bird': bird })
 
 class TweetHandler(BaseRequestHandler):
@@ -128,24 +139,45 @@ class TweetHandler(BaseRequestHandler):
         self.redirect(self.request.get('next'))
 
 class FollowHandler(BaseRequestHandler):
-    """Adds a relation."""
-    def post(self, username):
+    """Follows <username>"""
+    def post(self):
+        username = self.request.get('username')
+        # Add <username> to the following of <curr_bird>
         follower = Bird.get_current_bird()
         follower.no_following += 1
+        follower.following_list.append(username)
+        # Add <curr_bird> to the followers of <username>
         following = Bird.get_by_username(username)
         following.no_followers += 1
+        following.followers_list.append(follower.username)
+
         follower.put()
         following.put()
-        Relation(follower=follower, following=following).put()
+        self.redirect(self.request.get('next'))
+
+class UnfollowHandler(BaseRequestHandler):
+    """Unfollows <username>"""
+    def post(self):
+        username = self.request.get('username')
+        # Remove <username> from the following of <curr_bird>
+        follower = Bird.get_current_bird()
+        follower.no_following -= 1
+        follower.following_list.remove(username)
+        # Remove <curr_bird> from the followers of <username>
+        following = Bird.get_by_username(username)
+        following.no_followers -= 1
+        following.followers_list.remove(follower.username)
+
+        follower.put()
+        following.put()
         self.redirect(self.request.get('next'))
 
 class PublicTimeLineHandler(BaseRequestHandler):
     """Shows public time line on the home page"""
     def get(self):
         public_tweets = Tweet.all().order('-published').fetch(20)
-        self.response.out.write(template.render(
-            'public.html',
-            { 'publictweets' : public_tweets }))
+        self.generate('public.html',
+            { 'public_tweets' : public_tweets })
 
 
 _URLS = (('/', TimeLineHandler),
@@ -154,6 +186,7 @@ _URLS = (('/', TimeLineHandler),
          ('/user/(.*)', UserTimeLineHandler),
          ('/public', PublicTimeLineHandler),
          ('/follow', FollowHandler),
+         ('/unfollow', UnfollowHandler),
          )
 
 def main():
