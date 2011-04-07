@@ -6,7 +6,7 @@
       <p>{{ error }}</p>
       {% endif %}
       <input type="hidden" name="next" value="{{ request.uri|escape }}"/>
-      <input type="text" name="username" value="{{ user.nickname }}" />
+      <input type="text" name="username" value="" />
       <textarea name="about" value=""></textarea>
       <input type="submit" value="Create" />
   </form>

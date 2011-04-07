@@ -86,7 +86,6 @@ class TimeLineHandler(BaseRequestHandler):
             self.redirect('/register')
             return
         following = bird.following_list
-        following.append(bird.username)
         tweets = Tweet.gql("WHERE username in :following ORDER BY published DESC", following=following).fetch(20)
         self.generate("curr_user_timeline.html", {
             'tweets': tweets,
@@ -108,7 +107,9 @@ class RegisterHandler(BaseRequestHandler):
             self.redirect('/register?error=username+exists')
             return
         about = self.request.get('about')
-        Bird(username=username, about=about).put()
+        bird = Bird(username=username, about=about)
+        bird.following_list.append(username)
+        bird.put()
         self.redirect('/')
 
 class UserTimeLineHandler(BaseRequestHandler):
@@ -116,11 +117,11 @@ class UserTimeLineHandler(BaseRequestHandler):
     """
     def get(self, username):
         bird = Bird.get_by_username(username)
+        if not bird:
+            self.error(404)
+            return
         curr_bird = Bird.get_current_bird()
         is_following = bird.username in curr_bird.following_list
-        if not bird:
-            self.error(403)
-            return
         tweets = Tweet.gql("WHERE username = :username", username=username).fetch(20)
         self.generate("user_timeline.html", {
             'tweets': tweets,
