@@ -121,10 +121,12 @@ class UserTimeLineHandler(BaseRequestHandler):
             self.error(404)
             return
         curr_bird = Bird.get_current_bird()
+        same_bird = curr_bird.username == username
         is_following = bird.username in curr_bird.following_list
         tweets = Tweet.gql("WHERE username = :username", username=username).fetch(20)
         self.generate("user_timeline.html", {
             'tweets': tweets,
+            'same_bird': same_bird,
             'is_following': is_following,
             'bird': bird })
 
