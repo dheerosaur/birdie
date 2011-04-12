@@ -87,7 +87,7 @@ class TimeLineHandler(BaseRequestHandler):
     """If the user is logged in, gets tweets of whom the user follows. Otherwise, shows the welcome
     page asking him to login.
     """
-    @login_required
+    @req_login
     def get(self):
         bird = Bird.get_current_bird()
         if not bird:
@@ -102,7 +102,7 @@ class TimeLineHandler(BaseRequestHandler):
 class RegisterHandler(BaseRequestHandler):
     """Asks the user to select a username/handle.
     """
-    @login_required
+    @req_login
     def get(self):
         if Bird.get_current_bird():
             self.redirect('/')
