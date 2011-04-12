@@ -42,13 +42,6 @@ class Bird(db.Model):
         bird = Bird.gql("WHERE username = :username", username=username).get()
         return bird
 
-#class Relation(db.Model):
-#    """Who follows Whom.
-#
-#    A relation is added whenever a user follows another user"""
-#    follower = db.ReferenceProperty(Bird, collection_name='followers')
-#    following = db.ReferenceProperty(Bird, collection_name='following')
-
 class Tweet(db.Model):
     """A tweet by a bird.
     """
@@ -73,6 +66,21 @@ class BaseRequestHandler(webapp.RequestHandler):
         directory = os.path.dirname(__file__)
         path = os.path.join(directory, os.path.join('templates', template_name))
         self.response.out.write(template.render(path, values, debug=_DEBUG))
+
+    def follow_unfollow(self, action, addend):
+        username = self.request.get('username')
+
+        follower = Bird.get_current_bird()
+        follower.no_following += addend
+        getattr(follower.following_list, action)(username)
+
+        following = Bird.get_by_username(username)
+        following.no_followers += addend
+        getattr(following.followers_list, action)(follower.username)
+
+        follower.put()
+        following.put()
+        self.redirect(self.request.get('next'))
 
 # handlers
 class TimeLineHandler(BaseRequestHandler):
@@ -141,39 +149,16 @@ class TweetHandler(BaseRequestHandler):
                 username=bird.username).put()
         self.redirect(self.request.get('next'))
 
+
 class FollowHandler(BaseRequestHandler):
     """Follows <username>"""
     def post(self):
-        username = self.request.get('username')
-        # Add <username> to the following of <curr_bird>
-        follower = Bird.get_current_bird()
-        follower.no_following += 1
-        follower.following_list.append(username)
-        # Add <curr_bird> to the followers of <username>
-        following = Bird.get_by_username(username)
-        following.no_followers += 1
-        following.followers_list.append(follower.username)
-
-        follower.put()
-        following.put()
-        self.redirect(self.request.get('next'))
+        self.follow_unfollow('append', 1)
 
 class UnfollowHandler(BaseRequestHandler):
     """Unfollows <username>"""
     def post(self):
-        username = self.request.get('username')
-        # Remove <username> from the following of <curr_bird>
-        follower = Bird.get_current_bird()
-        follower.no_following -= 1
-        follower.following_list.remove(username)
-        # Remove <curr_bird> from the followers of <username>
-        following = Bird.get_by_username(username)
-        following.no_followers -= 1
-        following.followers_list.remove(follower.username)
-
-        follower.put()
-        following.put()
-        self.redirect(self.request.get('next'))
+        self.follow_unfollow('remove', -1)
 
 class PublicTimeLineHandler(BaseRequestHandler):
     """Shows public time line on the home page"""
@@ -181,6 +166,11 @@ class PublicTimeLineHandler(BaseRequestHandler):
         public_tweets = Tweet.all().order('-published').fetch(20)
         self.generate('public.html',
             { 'public_tweets' : public_tweets })
+
+class RPCHandler(webapp.RequestHandler):
+    """Handles RPC requests"""
+    def get(self):
+        return
 
 
 _URLS = (('/', TimeLineHandler),
@@ -190,6 +180,7 @@ _URLS = (('/', TimeLineHandler),
          ('/public', PublicTimeLineHandler),
          ('/follow', FollowHandler),
          ('/unfollow', UnfollowHandler),
+         ('/rpc', RPCHandler),
          )
 
 def main():
