@@ -10,9 +10,24 @@ from google.appengine.ext import webapp
 from google.appengine.ext import db
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
-from google.appengine.ext.webapp.util import login_required
 
 _DEBUG = True
+
+#utilities
+def req_login(handler_method):
+    """A decorator which redirects the get requests to pages that require login to /public
+    """
+    def check_login(self, *args):
+        if self.request.method != "GET":
+            raise webapp.Error("Can be used only with GET requests")
+
+        user = users.get_current_user()
+        if not user:
+            self.redirect('/public')
+            return
+        else:
+            handler_method(self, *args)
+    return check_login
 
 # models
 class Bird(db.Model):
