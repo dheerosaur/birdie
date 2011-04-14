@@ -1,9 +1,11 @@
+#The main handler.
 __author__ = 'Dheeraj Sayala'
 
 #imports
 import cgi
 import os
 import datetime
+import re
 
 from google.appengine.api import users
 from google.appengine.ext import webapp
@@ -11,6 +13,7 @@ from google.appengine.ext import db
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
 
+whitespace = re.compile(r"\s+")
 _DEBUG = True
 
 #utilities
@@ -28,6 +31,18 @@ def req_login(handler_method):
         else:
             handler_method(self, *args)
     return check_login
+
+def follow_unfollow(username, action, addend):
+    follower = Bird.get_current_bird()
+    follower.no_following += addend
+    getattr(follower.following_list, action)(username)
+
+    following = Bird.get_by_username(username)
+    following.no_followers += addend
+    getattr(following.followers_list, action)(follower.username)
+
+    follower.put()
+    following.put()
 
 # models
 class Bird(db.Model):
@@ -65,16 +80,28 @@ class Tweet(db.Model):
     author = db.ReferenceProperty(Bird)
     username = db.StringProperty(required=True)
 
+    @staticmethod
+    def post_message(msg):
+        """Posts tweet
+        """
+        bird = Bird.get_current_bird()
+        bird.no_tweets += 1
+        username = bird.username
+        bird.put()
+        Tweet(message=msg,
+                author=bird,
+                username=username).put()
+
 # generate
 class BaseRequestHandler(webapp.RequestHandler):
     """Supplies a generate method which provides common template variables
     """
-    def generate(self, template_name, template_values={}):
+    def generate(self, template_name, template_values={}, login_redirect=False):
         homepage = 'http://' + self.request.host + '/'
         values = {
                 'request': self.request,
                 'user' : users.get_current_user(),
-                'login_url': users.create_login_url(self.request.uri),
+                'login_url': users.create_login_url(login_redirect or self.request.uri),
                 'logout_url': users.create_logout_url(homepage)
                 }
         values.update(template_values)
@@ -82,19 +109,9 @@ class BaseRequestHandler(webapp.RequestHandler):
         path = os.path.join(directory, os.path.join('templates', template_name))
         self.response.out.write(template.render(path, values, debug=_DEBUG))
 
-    def follow_unfollow(self, action, addend):
+    def follow_helper(self, action, addend):
         username = self.request.get('username')
-
-        follower = Bird.get_current_bird()
-        follower.no_following += addend
-        getattr(follower.following_list, action)(username)
-
-        following = Bird.get_by_username(username)
-        following.no_followers += addend
-        getattr(following.followers_list, action)(follower.username)
-
-        follower.put()
-        following.put()
+        follow_unfollow(username, action, addend)
         self.redirect(self.request.get('next'))
 
 # handlers
@@ -122,7 +139,7 @@ class RegisterHandler(BaseRequestHandler):
         if Bird.get_current_bird():
             self.redirect('/')
             return
-        self.generate('register.html', {'error': self.request.get('error')})
+        self.generate('register.html', {'error': self.request.get('error')}, '/')
 
     def post(self):
         username = self.request.get('username')
@@ -143,50 +160,76 @@ class UserTimeLineHandler(BaseRequestHandler):
         if not bird:
             self.error(404)
             return
-        curr_bird = Bird.get_current_bird()
-        same_bird = curr_bird.username == username
-        is_following = bird.username in curr_bird.following_list
         tweets = Tweet.gql("WHERE username = :username", username=username).fetch(20)
-        self.generate("user_timeline.html", {
-            'tweets': tweets,
-            'same_bird': same_bird,
-            'is_following': is_following,
-            'bird': bird })
+        template_values = {'tweets': tweets, 'bird': bird}
 
+        # If logged in, check if following or not
+        # Also check if it's bird's own timeline
+        curr_bird = Bird.get_current_bird()
+        if curr_bird:
+            template_values['same_bird'] = (curr_bird.username == username)
+            template_values['is_following'] = (bird.username in curr_bird.following_list)
+
+        self.generate("user_timeline.html", template_values, '/')
+
+### Non RPC Handlers
 class TweetHandler(BaseRequestHandler):
     """Posts a tweet."""
     def post(self):
-        bird = Bird.get_current_bird()
-        bird.no_tweets += 1
-        bird.put()
-        Tweet(message=self.request.get('message'),
-                author=bird,
-                username=bird.username).put()
+        msg = whitespace.sub(" ", self.request.get('message'))
+        Tweet.post_message(msg)
         self.redirect(self.request.get('next'))
-
 
 class FollowHandler(BaseRequestHandler):
     """Follows <username>"""
     def post(self):
-        self.follow_unfollow('append', 1)
+        self.follow_helper('append', 1)
 
 class UnfollowHandler(BaseRequestHandler):
     """Unfollows <username>"""
     def post(self):
-        self.follow_unfollow('remove', -1)
+        self.follow_helper('remove', -1)
+
+### End of Non RPC Handlers
 
 class PublicTimeLineHandler(BaseRequestHandler):
     """Shows public time line on the home page"""
     def get(self):
         public_tweets = Tweet.all().order('-published').fetch(20)
         self.generate('public.html',
-            { 'public_tweets' : public_tweets })
+            { 'public_tweets' : public_tweets }, '/')
 
 class RPCHandler(webapp.RequestHandler):
     """Handles RPC requests"""
-    def get(self):
-        return
+    def __init__(self):
+        webapp.RequestHandler.__init__(self)
+        self.methods = RPCMethods()
 
+    def post(self):
+        func = self.request.get('action')
+        if func[0] == '_':
+            self.error(403)
+            return
+        func = getattr(self.methods, func, None)
+        if not func:
+            self.error(404)
+            return
+        result = func(self.request)
+        self.response.out.write(result)
+
+class RPCMethods:
+    """A collection of RPC methods
+
+    tweet: Posts a tweet <message>
+    follow: Follows the user with <username>
+    unfollow: Unfollows the user with <username>
+    get_followers: Gets the usernames following <username>
+    get_following: Gets the usernames following <username>
+    """
+    def tweet(self, req):
+        msg = req.get('message')
+        Tweet.post_message(msg)
+        return "Tweeted"
 
 _URLS = (('/', TimeLineHandler),
          ('/register', RegisterHandler),

@@ -6,7 +6,7 @@
 
 {% block body %}
     <div id="userdetails">
-        <h2>{{ bird.username }}</h2>
+        <h2 id="username">{{ bird.username }}</h2>
         <p>{{ bird.about }}</p>
         <ul id="stats">
             <li>Tweets {{ bird.no_tweets }}</li>
@@ -16,18 +16,21 @@
         </ul>
     </div>
 
-    {% block follow_unfollow %}
-    {% endblock %}
+    {% if user %}
+        {% block follow_unfollow %}
+        {% endblock %}
 
-    {% block share %}
-    {% endblock %}
+        {% block share %}
+        {% endblock %}
+    {% endif %}
 
+    <div id="tweet_response"></div>
     <div id="tweets">
         {% for tweet in tweets %}
         <div class="tweet">
-            <a class="username" href="/user/{{tweet.username}}">{{ tweet.username }}</a>
-            <span class="message">{{ tweet.message }}</span>
-            <span class="pub_time">at {{ tweet.published|date:"P \- D, M d" }}</span>
+            <a class="username" href="/user/{{tweet.username}}">{{tweet.username}}</a>
+            <span class="message">{{tweet.message}}</span>
+            <span class="pub_time">at {{tweet.published|date:"P \- D, M d"}}</span>
         </div>
         {% endfor %}
     </div>
