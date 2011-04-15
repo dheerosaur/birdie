@@ -7,13 +7,19 @@ import os
 import datetime
 import re
 
+os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+from google.appengine.dist import use_library
+use_library('django', '1.2')
+
 from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.ext import db
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
 
-whitespace = re.compile(r"\s+")
+#regex
+regex_whitespace = re.compile(r"\s+")
+regex_username = re.compile(r"^[a-z][a-z0-9_]{1,15}$")
 _DEBUG = True
 
 #utilities
@@ -32,17 +38,31 @@ def req_login(handler_method):
             handler_method(self, *args)
     return check_login
 
-def follow_unfollow(username, action, addend):
+def follow_unfollow(username):
     follower = Bird.get_current_bird()
-    follower.no_following += addend
-    getattr(follower.following_list, action)(username)
-
     following = Bird.get_by_username(username)
-    following.no_followers += addend
-    getattr(following.followers_list, action)(follower.username)
+
+    if not follower or not following:
+        return "Something wrong"
+
+    if username in follower.following_list:
+        follower.following_list.remove(username)
+        follower.no_following -= 1
+    else:
+        follower.following_list.append(username)
+        follower.no_following += 1
+
+    follower_name = follower.username
+    if follower_name in following.followers_list:
+        following.followers_list.remove(follower_name)
+        following.no_followers -= 1
+    else:
+        following.followers_list.append(follower_name)
+        following.no_followers += 1
 
     follower.put()
     following.put()
+    return "Follow action completed"
 
 # models
 class Bird(db.Model):
@@ -109,11 +129,6 @@ class BaseRequestHandler(webapp.RequestHandler):
         path = os.path.join(directory, os.path.join('templates', template_name))
         self.response.out.write(template.render(path, values, debug=_DEBUG))
 
-    def follow_helper(self, action, addend):
-        username = self.request.get('username')
-        follow_unfollow(username, action, addend)
-        self.redirect(self.request.get('next'))
-
 # handlers
 class TimeLineHandler(BaseRequestHandler):
     """If the user is logged in, gets tweets of whom the user follows. Otherwise, shows the welcome
@@ -142,11 +157,17 @@ class RegisterHandler(BaseRequestHandler):
         self.generate('register.html', {'error': self.request.get('error')}, '/')
 
     def post(self):
-        username = self.request.get('username')
+        username = self.request.get('username').lower()
+        if not regex_username.search(username):
+            self.redirect('/register?error=bad+username')
+            return
         if Bird.get_by_username(username):
             self.redirect('/register?error=username+exists')
             return
         about = self.request.get('about')
+        if len(about) > 1024:
+            self.redirect('/register?error=too+long+about')
+            return
         bird = Bird(username=username, about=about)
         bird.following_list.append(username)
         bird.put()
@@ -176,19 +197,15 @@ class UserTimeLineHandler(BaseRequestHandler):
 class TweetHandler(BaseRequestHandler):
     """Posts a tweet."""
     def post(self):
-        msg = whitespace.sub(" ", self.request.get('message'))
-        Tweet.post_message(msg)
+        msg = regex_whitespace.sub(" ", self.request.get('message'))
+        Tweet.post_message(cgi.escape(msg))
         self.redirect(self.request.get('next'))
 
 class FollowHandler(BaseRequestHandler):
     """Follows <username>"""
     def post(self):
-        self.follow_helper('append', 1)
-
-class UnfollowHandler(BaseRequestHandler):
-    """Unfollows <username>"""
-    def post(self):
-        self.follow_helper('remove', -1)
+        follow_unfollow(self.request.get('username'))
+        self.redirect(self.request.get('next'))
 
 ### End of Non RPC Handlers
 
@@ -221,15 +238,17 @@ class RPCMethods:
     """A collection of RPC methods
 
     tweet: Posts a tweet <message>
-    follow: Follows the user with <username>
-    unfollow: Unfollows the user with <username>
+    follow: Follows or unfollows the user with <username>
     get_followers: Gets the usernames following <username>
     get_following: Gets the usernames following <username>
     """
     def tweet(self, req):
         msg = req.get('message')
         Tweet.post_message(msg)
-        return "Tweeted"
+        return "Tweeted!"
+
+    def follow(self, req):
+        return follow_unfollow(req.get('username'))
 
 _URLS = (('/', TimeLineHandler),
          ('/register', RegisterHandler),
@@ -237,7 +256,6 @@ _URLS = (('/', TimeLineHandler),
          ('/user/(.*)', UserTimeLineHandler),
          ('/public', PublicTimeLineHandler),
          ('/follow', FollowHandler),
-         ('/unfollow', UnfollowHandler),
          ('/rpc', RPCHandler),
          )
 

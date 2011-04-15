@@ -6,12 +6,12 @@
 
 {% block body %}
     <div id="userdetails">
-        <h2 id="username">{{ bird.username }}</h2>
+        <h2 id="page_username">{{ bird.username }}</h2>
         <p>{{ bird.about }}</p>
         <ul id="stats">
-            <li>Tweets {{ bird.no_tweets }}</li>
-            <li>Following {{ bird.no_following }}</li>
-            <li>Followers {{ bird.no_followers }}</li>
+            <li>Tweets <span id="no_tweets">{{ bird.no_tweets }}<span></li>
+                    <li>Following <span id="no_following">{{ bird.no_following }}</span></li>
+            <li>Followers <span id="no_followers">{{ bird.no_followers }}</span></li>
             <li>Member since {{ bird.joined|date:"M, Y" }}</li>
         </ul>
     </div>
@@ -33,6 +33,11 @@
             <span class="pub_time">at {{tweet.published|date:"P \- D, M d"}}</span>
         </div>
         {% endfor %}
+    </div>
+    <div class="tweet_clone">
+        <a class="username"></a>
+        <span class="message"></span>
+        <span class="pub_time"></span>
     </div>
 
 {% endblock %}

@@ -2,33 +2,43 @@
  * $$ is document.getElementById
  */
 
-function gbId(id) {
-    return document.getElementById(id);
-}
+function gbId(id) { return document.getElementById(id); }
 
-function cur_date(id) {
+function cur_time(id) {
     var dt = new Date();
     return "at " + dt.toDateString();
 }
 
 jQuery(function () {
-        
+    var page_username = $("#page_username").text(),
+        curr_username = page_username,
+        $flash = $("#flash");
+
+    var actions = {
+        tweet: tweetAction,
+        follow: function ($this) { return followAction($this); },
+        register: function () { return true; },
+    };
+
+    $("form").bind("submit", function () {
+        var action = $(this).attr("action").substr(1);
+        return actions[action]($(this));
+    });
+
+
+    if ( $("body").hasClass("curr_user_timeline") ){
+
         var $tsub = $("#tweet_submit"), 
             $tmsg = $("#tweet_message"),
-            $tcount = $("#char_count"),
-            username = $("#username").text(),
-            tw_div = $('<div class="tweet"></div>'),
-            tw_a = $('<a class="username"></a>').text(username)
-                    .attr("href", "/user/username"),
-            tw_span1 = $('<span class="message"></span>'),
-            tw_span2 = $('<span class="pub_time"></span>');
+            $tcount = $("#char_count");
 
-        /* 1. Disable tweet submit
+        /* 1. Disable tweet submit and clear msg box
          * 2. Update char_count on change and
          * 3. Enable submit button if text is entered 
          */
         $tsub.attr("disabled", "disabled");
-        $tmsg.bind('change keyup mouseup',
+        $tmsg.val('');
+        $tmsg.bind('keyup mouseup',
             function () {
                 var val = $tmsg.val();
                 if (val == '') {
@@ -40,35 +50,74 @@ jQuery(function () {
                     $tcount.text(140 - val.length);
                 }
             });
+    } //curr_user_timeline specific code ends
+        
+    if($("body").hasClass("user_timeline")) {
+        var $fbutton = $("#follow_form").find(".fbutton");
+            $unfbutton = $("#unfollow_form").find(".fbutton");
 
-        /* Tweet Handler
-         * Stops form submit and makes an AJAX post request
-         */
-        $("#tweet_form").submit(function (e) {
-            var msg = $tmsg.val().replace(/\s+/g, ' ');
-            if (msg == '' || msg == ' ') return false;
+        /* 1. Change unfollow to following
+         * 2. On hover, toggle unfollow
+         * 3. On submit, call RPC follow or unfollow
+        $unfbutton.text("Following")
+                  .hover(function () { $(this).text("Unfollow"); },
+                         function () { $(this).text("Following"); }
+                       );
+                       */
+    } // user_timeline specific code ends
 
-//            $tmsg.trigger('tweetstart');
-            $.ajax({
-                type: "POST",
-                url: "/rpc", 
-                data: { action: 'tweet', message: msg },
-                success: function (data) {
- //                   $tmsg.trigger('tweetstop');
-                    $("#tweets").prepend(
-                        tw_div.append(tw_a)
-                              .append(tw_span1.text(msg))
-                              .append(tw_span2.text(cur_date()))
-                        );
-                }
+
+    function tweetAction () {
+        var msg = $tmsg.val().replace(/\s+/g, ' ');
+        if (msg == '' || msg == ' ') return false;
+
+        $.ajax({
+            type: "POST",
+            url: "/rpc", 
+            data: { action: 'tweet', message: msg },
+            success: function (data) {
+                  $("#tweets").prepend(
+                      $(".tweet_clone:first").clone()
+                            .find(".username").attr("href", "/user/"+curr_username)
+                                              .text(curr_username).end()
+                            .find(".message").text(msg).end()
+                            .find(".pub_time").text(cur_time()).end()
+                            .attr("class", "tweet")
+                    );
+                },
+            failure: function (data) {
+                  $flash.text("Something's gone wrong. Please try again");
+                },
             });
-            return false;
-        });
+        return false;
+    } //tweetAction ends
 
-        $("follow_form").submit(function (e) {
+    function followAction ($this) {
+        var fnext_id = "follow_form",
+            fbutton_value = "Follow";
+        if ($this.attr("id") == "follow_form") {
+            fnext_id = "unfollow_form";
+            fbutton_value = "Following";
+        }
 
-            return false;
-        });
+        $.ajax({
+            type: "POST",
+            url: "/rpc", 
+            data: { action: 'follow', username: page_username },
+            success: function (data) {
+                    $this.attr("id", fnext_id)
+                         .find(".fbutton").val(fbutton_value);
+                },
+            failure: function (data) {
+                  $flash.text("Something's gone wrong. Please try again");
+                },
+            });
+        return false;
+    } //followAction ends
 
-//jQuery end
+    function update_count(counter, by) {
+            
+    }
+
+//jQuery ends
 });

@@ -7,7 +7,7 @@
     <link href="/static/css/style.css" rel="stylesheet" type="text/css"/>
     {% block head %}{% endblock %}
 </head>
-<body>
+<body {% block bodyattr %}{% endblock %}>
     <div id="container">
         <header id="header">
             {% block header %}
@@ -22,6 +22,7 @@
             </div>
             {% endblock %}
         </header>
+        <div id="flash"></div>
         <div id="main">
             {% block body %}{% endblock %}
         </div>
