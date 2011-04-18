@@ -1,11 +1,10 @@
 {% extends "timeline.html" %}
 {% block follow_unfollow %}
 {% if not same_bird %}
-    {% if is_following %}
-    <form id="unfollow_form" action="/follow" method="post">
-        <input class="fbutton" type="submit" value="Following"/>
-    {% else %}
     <form id="follow_form" action="/follow" method="post">
+    {% if is_following %}
+        <input class="ufbutton" type="submit" value="Following"/>
+    {% else %}
         <input class="fbutton" type="submit" value="Follow"/>
     {% endif %}
         <input type="hidden" name="next" value="{{ request.uri|escape }}" />

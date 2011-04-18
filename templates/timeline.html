@@ -9,9 +9,23 @@
         <h2 id="page_username">{{ bird.username }}</h2>
         <p>{{ bird.about }}</p>
         <ul id="stats">
-            <li>Tweets <span id="no_tweets">{{ bird.no_tweets }}<span></li>
-                    <li>Following <span id="no_following">{{ bird.no_following }}</span></li>
-            <li>Followers <span id="no_followers">{{ bird.no_followers }}</span></li>
+
+            <li>Tweets 
+                <a href="/user/{{bird.username}}" id="no_tweets">{{bird.no_tweets}}</a>
+                <!--
+                <a name="tweets" id="no_tweets" class="ajaxable" href="/user/{{bird.username}}"
+                    data-action="showitems" data-method="get_tweets">{{ bird.no_tweets }}</a>
+                -->
+            </li>
+            <li>Followers 
+                <a name="followers" id="no_followers" class="ajaxable" href="/followers/{{bird.username}}"
+                    data-action="showitems" data-method="get_followers">{{ bird.no_followers }}</a>
+            </li>
+            <li>Following 
+                <a name="following" id="no_following" class="ajaxable" href="/following/{{bird.username}}"
+                    data-action="showitems" data-method="get_following">{{ bird.no_following }}</a>
+            </li>
+
             <li>Member since {{ bird.joined|date:"M, Y" }}</li>
         </ul>
     </div>
@@ -24,20 +38,24 @@
         {% endblock %}
     {% endif %}
 
-    <div id="tweet_response"></div>
-    <div id="tweets">
-        {% for tweet in tweets %}
-        <div class="tweet">
-            <a class="username" href="/user/{{tweet.username}}">{{tweet.username}}</a>
-            <span class="message">{{tweet.message}}</span>
-            <span class="pub_time">at {{tweet.published|date:"P \- D, M d"}}</span>
+    <div id="itemlists">
+        <div id="tweets loaded">
+            {% for tweet in tweets %}
+            <div class="tweet">
+                <a class="username" href="/user/{{tweet.username}}">{{tweet.username}}</a>
+                <span class="message">{{tweet.message}}</span>
+                <span class="pub_time">at {{tweet.published|date:"P \- D, M d"}}</span>
+            </div>
+            {% endfor %}
+
+            <div class="tweet_clone">
+                <a class="username"></a>
+                <span class="message"></span>
+                <span class="pub_time"></span>
+            </div>
         </div>
-        {% endfor %}
-    </div>
-    <div class="tweet_clone">
-        <a class="username"></a>
-        <span class="message"></span>
-        <span class="pub_time"></span>
+        <div id="followers"></div>
+        <div id="following"></div>
     </div>
 
 {% endblock %}

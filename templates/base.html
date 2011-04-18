@@ -14,7 +14,7 @@
             <h1 class="title"><a href="/"><img src="" alt="Birdie"/></a></h1>
             <div class="login">
                 {% if user %}
-                <span class="item nickname">{{ user.nickname }}</span> |
+                {% if bird %}<div id="curr_username">{{ bird.username }}</div>{% endif %}
                 <span class="item"><a href="{{ logout_url|escape }}">Sign out</a></span>
                 {% else %}
                 <span class="item"><a href="{{ login_url|escape }}">Sign in</a></span>
@@ -22,7 +22,9 @@
             </div>
             {% endblock %}
         </header>
-        <div id="flash"></div>
+        <div id="flash">
+            {% if flash %}{{ flash }}{% endif %}
+        </div>
         <div id="main">
             {% block body %}{% endblock %}
         </div>

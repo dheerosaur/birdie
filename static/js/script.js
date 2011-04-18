@@ -1,9 +1,3 @@
-/* 
- * $$ is document.getElementById
- */
-
-function gbId(id) { return document.getElementById(id); }
-
 function cur_time(id) {
     var dt = new Date();
     return "at " + dt.toDateString();
@@ -11,13 +5,16 @@ function cur_time(id) {
 
 jQuery(function () {
     var page_username = $("#page_username").text(),
-        curr_username = page_username,
+        curr_username = $("#curr_username").text(),
         $flash = $("#flash");
 
     var actions = {
         tweet: tweetAction,
-        follow: function ($this) { return followAction($this); },
+        follow: function ($this) { 
+                    return followAction($this.find(".fbutton,.ufbutton"), true); 
+                },
         register: function () { return true; },
+        showitems: showItemsAction,
     };
 
     $("form").bind("submit", function () {
@@ -25,6 +22,10 @@ jQuery(function () {
         return actions[action]($(this));
     });
 
+    $(".ajaxable").bind("click", function () {
+        var action = $(this).attr("data-action");
+        return actions[action]($(this));
+    });
 
     if ( $("body").hasClass("curr_user_timeline") ){
 
@@ -74,7 +75,7 @@ jQuery(function () {
         $.ajax({
             type: "POST",
             url: "/rpc", 
-            data: { action: 'tweet', message: msg },
+            data: { method: 'tweet', message: msg },
             success: function (data) {
                   $("#tweets").prepend(
                       $(".tweet_clone:first").clone()
@@ -92,21 +93,19 @@ jQuery(function () {
         return false;
     } //tweetAction ends
 
-    function followAction ($this) {
-        var fnext_id = "follow_form",
-            fbutton_value = "Follow";
-        if ($this.attr("id") == "follow_form") {
-            fnext_id = "unfollow_form";
-            fbutton_value = "Following";
-        }
-
+    function followAction ($button, is_main) {
         $.ajax({
             type: "POST",
             url: "/rpc", 
-            data: { action: 'follow', username: page_username },
+            data: { method: 'follow', username: page_username },
             success: function (data) {
-                    $this.attr("id", fnext_id)
-                         .find(".fbutton").val(fbutton_value);
+                    if ($button.hasClass("fbutton")) {
+                        $button.val("Following")
+                            .removeClass("fbutton").addClass("ufbutton");
+                    } else {
+                        $button.val("Follow")
+                            .removeClass("ufbutton").addClass("fbutton");
+                    }
                 },
             failure: function (data) {
                   $flash.text("Something's gone wrong. Please try again");
@@ -114,6 +113,37 @@ jQuery(function () {
             });
         return false;
     } //followAction ends
+
+    function showItemsAction ($this) {
+        if (! curr_username) return true;
+
+        var $target_div = $("#" + $this.attr("name"));
+        $("#itemlists").children().fadeOut(100, function () {
+                $target_div.fadeIn(100);
+            });
+
+        if (!$target_div.hasClass("loaded")) {
+            $.ajax({
+                url: "/rpc",
+                data: { method: $this.attr("data-method"), username: page_username },
+                dataType: "json",
+                success: function (jsondata) {
+                        var ul = ['<ul>'];
+                        jsondata.items.map(function (item) {
+                            ul.push('<li><a href="' + item.link +
+                                      '">' + item.name + '</a></li>');
+                        });
+                        ul.push("</ul>");
+                        $target_div.append(ul.join("\n"));
+                        $target_div.addClass("loaded");
+                    },
+                failure: function () {
+                        $flash.text("Something's gone wrong. Please try again");
+                    },
+                });
+        }
+        return false;
+    } //showlistAction ends
 
     function update_count(counter, by) {
             

@@ -16,6 +16,7 @@ from google.appengine.ext import webapp
 from google.appengine.ext import db
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
+from django.utils import simplejson as json
 
 #regex
 regex_whitespace = re.compile(r"\s+")
@@ -141,6 +142,7 @@ class TimeLineHandler(BaseRequestHandler):
             self.redirect('/register')
             return
         following = bird.following_list
+        following.append(bird.username)
         tweets = Tweet.gql("WHERE username in :following ORDER BY published DESC", following=following).fetch(20)
         self.generate("curr_user_timeline.html", {
             'tweets': tweets,
@@ -169,7 +171,6 @@ class RegisterHandler(BaseRequestHandler):
             self.redirect('/register?error=too+long+about')
             return
         bird = Bird(username=username, about=about)
-        bird.following_list.append(username)
         bird.put()
         self.redirect('/')
 
@@ -216,14 +217,26 @@ class PublicTimeLineHandler(BaseRequestHandler):
         self.generate('public.html',
             { 'public_tweets' : public_tweets }, '/')
 
+class FollowersHandler(BaseRequestHandler):
+    """Shows followers of a bird"""
+    @req_login
+    def get(self, username):
+        return
+
+class FollowingHandler(BaseRequestHandler):
+    """Shows followers of a bird"""
+    @req_login
+    def get(self, username):
+        return
+
 class RPCHandler(webapp.RequestHandler):
     """Handles RPC requests"""
     def __init__(self):
         webapp.RequestHandler.__init__(self)
         self.methods = RPCMethods()
 
-    def post(self):
-        func = self.request.get('action')
+    def get_post(self):
+        func = self.request.get('method')
         if func[0] == '_':
             self.error(403)
             return
@@ -233,6 +246,12 @@ class RPCHandler(webapp.RequestHandler):
             return
         result = func(self.request)
         self.response.out.write(result)
+
+    def get(self):
+        self.get_post()
+
+    def post(self):
+        self.get_post()
 
 class RPCMethods:
     """A collection of RPC methods
@@ -250,12 +269,29 @@ class RPCMethods:
     def follow(self, req):
         return follow_unfollow(req.get('username'))
 
+    def get_users_json(self, of, username):
+        l = []
+        for item in getattr(Bird.get_by_username(username), of):
+            l.append({ 'name' : item,
+                       'link' : "/user/"+item,
+                       })
+        d = dict(items=l)
+        return json.dumps(d)
+
+    def get_followers(self, req):
+        return self.get_users_json('followers_list', req.get('username'))
+
+    def get_following(self, req):
+        return self.get_users_json('following_list', req.get('username'))
+
 _URLS = (('/', TimeLineHandler),
          ('/register', RegisterHandler),
          ('/tweet', TweetHandler),
-         ('/user/(.*)', UserTimeLineHandler),
-         ('/public', PublicTimeLineHandler),
          ('/follow', FollowHandler),
+         ('/public', PublicTimeLineHandler),
+         ('/user/(.*)', UserTimeLineHandler),
+         ('/followers/(.*)', FollowersHandler),
+         ('/following/(.*)', FollowingHandler),
          ('/rpc', RPCHandler),
          )
 
