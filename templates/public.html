@@ -4,16 +4,23 @@
     Public Timeline
 {% endblock %}
 
+{% if not user %}
+    {% block flash%}
+        Please login using your google account to use Birdie
+    {% endblock %}
+{% endif %}
+
 {% block body %}
-    
-    <div id="tweets">
-        {% for tweet in public_tweets %}
-        <div class="tweet">
-            <a class="username" href="/user/{{tweet.username}}">{{ tweet.username }}</a>
-            <span class="message">{{ tweet.message }}</span>
-            <span class="pub_time">at {{ tweet.published|date:"P \- D, M d" }}</span>
+    <div id="itemlists">
+        <div id="tweets">
+            {% for tweet in public_tweets %}
+            <div class="tweet">
+                <a class="username" href="/user/{{tweet.username}}">{{ tweet.username }}</a>
+                <span class="message">{{ tweet.message }}</span>
+                <span class="pub_time">at {{ tweet.published|date:"P \- D, M d" }}</span>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
 
 {% endblock %}
