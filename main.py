@@ -1,6 +1,7 @@
 #The main handler.
 __author__ = 'Dheeraj Sayala'
 
+
 #imports
 import cgi
 import os
@@ -11,6 +12,7 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 from google.appengine.dist import use_library
 use_library('django', '1.2')
 
+from hashlib import md5
 from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.ext import db
@@ -63,7 +65,7 @@ def follow_unfollow(username):
 
     follower.put()
     following.put()
-    return "Follow action completed"
+    return following.no_followers
 
 # models
 class Bird(db.Model):
@@ -72,8 +74,9 @@ class Bird(db.Model):
     A username is generated after checking the availability. Currently logs in using Google
     account."""
     account = db.UserProperty(auto_current_user_add=True)
-    username = db.StringProperty()
+    username = db.StringProperty(required=True)
     about = db.StringProperty()
+    gravatar_url = db.LinkProperty(required=True)
     joined = db.DateTimeProperty(auto_now_add=True)
     protected = db.BooleanProperty(default=False)
     no_tweets = db.IntegerProperty(default=0)
@@ -100,18 +103,21 @@ class Tweet(db.Model):
     published = db.DateTimeProperty(auto_now=True)
     author = db.ReferenceProperty(Bird)
     username = db.StringProperty(required=True)
+    gravatar_url = db.StringProperty(required=True)
 
     @staticmethod
     def post_message(msg):
         """Posts tweet
         """
         bird = Bird.get_current_bird()
-        bird.no_tweets += 1
-        username = bird.username
-        bird.put()
+        username, gravatar_url = bird.username, bird.gravatar_url
         Tweet(message=msg,
                 author=bird,
-                username=username).put()
+                username=username,
+                gravatar_url=gravatar_url).put()
+        bird.no_tweets += 1
+        bird.put()
+        return username, gravatar_url, bird.no_tweets
 
 # generate
 class BaseRequestHandler(webapp.RequestHandler):
@@ -143,7 +149,8 @@ class TimeLineHandler(BaseRequestHandler):
             return
         following = bird.following_list
         following.append(bird.username)
-        tweets = Tweet.gql("WHERE username in :following ORDER BY published DESC", following=following).fetch(20)
+        tweets = Tweet.gql("WHERE username in :following ORDER BY published DESC",
+                following=following).fetch(30)
         self.generate("curr_user_timeline.html", {
             'tweets': tweets,
             'bird': bird })
@@ -170,7 +177,9 @@ class RegisterHandler(BaseRequestHandler):
         if len(about) > 1024:
             self.redirect('/register?error=too+long+about')
             return
-        bird = Bird(username=username, about=about)
+        gravatar_url = 'http://www.gravatar.com/avatar/%s?d=identicon&s=%d' % \
+                        (md5(users.get_current_user().email()).hexdigest(), 40)
+        bird = Bird(username=username, about=about, gravatar_url=gravatar_url)
         bird.put()
         self.redirect('/')
 
@@ -182,7 +191,7 @@ class UserTimeLineHandler(BaseRequestHandler):
         if not bird:
             self.error(404)
             return
-        tweets = Tweet.gql("WHERE username = :username", username=username).fetch(20)
+        tweets = bird.tweet_set.fetch(20)
         template_values = {'tweets': tweets, 'bird': bird}
 
         # If logged in, check if following or not
@@ -263,11 +272,16 @@ class RPCMethods:
     """
     def tweet(self, req):
         msg = req.get('message')
-        Tweet.post_message(msg)
-        return "Tweeted!"
+        username, gravatar_url, no_tweets = Tweet.post_message(msg)
+        return json.dumps({
+                "gravatar_url": gravatar_url,
+                "username": username,
+                "no_tweets": no_tweets,
+            })
 
     def follow(self, req):
-        return follow_unfollow(req.get('username'))
+        no_followers = follow_unfollow(req.get('username'))
+        return json.dumps({"no_followers" : no_followers})
 
     def get_users_json(self, of, username):
         l = []

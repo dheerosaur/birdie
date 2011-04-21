@@ -1,6 +1,6 @@
 function cur_time(id) {
     var dt = new Date();
-    return "at " + dt.toDateString();
+    return dt.toTimeString().substr(0,5) + dt.toDateString();
 }
 
 jQuery(function () {
@@ -10,21 +10,21 @@ jQuery(function () {
 
     var actions = {
         tweet: tweetAction,
-        follow: function ($this) { 
-                    return followAction($this.find(".fbutton,.ufbutton"), true); 
+        follow: function (e, $this) { 
+                    return followAction(e, $this.find(".fbutton,.ufbutton"), true); 
                 },
         register: function () { return true; },
         showitems: showItemsAction,
     };
 
-    $("form").bind("submit", function () {
+    $("form").bind("submit", function (e) {
         var action = $(this).attr("action").substr(1);
-        return actions[action]($(this));
+        return actions[action](e, $(this));
     });
 
-    $(".ajaxable").bind("click", function () {
+    $(".ajaxable").bind("click", function (e) {
         var action = $(this).attr("data-action");
-        return actions[action]($(this));
+        return actions[action](e, $(this));
     });
 
     if ( $("body").hasClass("curr_user_timeline") ){
@@ -53,22 +53,7 @@ jQuery(function () {
             });
     } //curr_user_timeline specific code ends
         
-    if($("body").hasClass("user_timeline")) {
-        var $fbutton = $("#follow_form").find(".fbutton");
-            $unfbutton = $("#unfollow_form").find(".fbutton");
-
-        /* 1. Change unfollow to following
-         * 2. On hover, toggle unfollow
-         * 3. On submit, call RPC follow or unfollow
-        $unfbutton.text("Following")
-                  .hover(function () { $(this).text("Unfollow"); },
-                         function () { $(this).text("Following"); }
-                       );
-                       */
-    } // user_timeline specific code ends
-
-
-    function tweetAction () {
+    function tweetAction (e, $this) {
         var msg = $tmsg.val().replace(/\s+/g, ' ');
         if (msg == '' || msg == ' ') return false;
 
@@ -76,28 +61,26 @@ jQuery(function () {
             type: "POST",
             url: "/rpc", 
             data: { method: 'tweet', message: msg },
-            success: function (data) {
-                  $("#tweets").prepend(
-                      $(".tweet_clone:first").clone()
-                            .find(".username").attr("href", "/user/"+curr_username)
-                                              .text(curr_username).end()
-                            .find(".message").text(msg).end()
-                            .find(".pub_time").text(cur_time()).end()
-                            .attr("class", "tweet")
-                    );
+            dataType: "json",
+            success: function (jsondata) {
+                  jsondata.message = msg;
+                  jsondata.published = cur_time();
+                  $("#tweet_tmpl").tmpl(jsondata).prependTo("#tweets");
+                  $("#no_tweets").text(jsondata.no_tweets);
+                  $tmsg.val('').focus().trigger('keydown');
                 },
             failure: function (data) {
                   $flash.text("Something's gone wrong. Please try again");
                 },
             });
-        return false;
+        e.preventDefault()
     } //tweetAction ends
 
-    function followAction ($button, is_main) {
+    function followAction (e, $button, is_main) {
         $.ajax({
-            type: "POST",
-            url: "/rpc", 
+            type: "POST", url: "/rpc", 
             data: { method: 'follow', username: page_username },
+            dataType: "json",
             success: function (data) {
                     if ($button.hasClass("fbutton")) {
                         $button.val("Following")
@@ -106,6 +89,7 @@ jQuery(function () {
                         $button.val("Follow")
                             .removeClass("ufbutton").addClass("fbutton");
                     }
+                    $("#no_followers").text(data.no_followers);
                 },
             failure: function (data) {
                   $flash.text("Something's gone wrong. Please try again");
@@ -114,12 +98,13 @@ jQuery(function () {
         return false;
     } //followAction ends
 
-    function showItemsAction ($this) {
+    function showItemsAction (e, $this) {
         if (! curr_username) return true;
+        var target_id = $this.attr("data-target-id"),
+            $target_div = $("#" + target_id);
 
-        var $target_div = $("#" + $this.attr("name"));
-        $("#itemlists").children().fadeOut(100, function () {
-                $target_div.fadeIn(100);
+        $("#itemlists").children().fadeOut(200, function () {
+                $target_div.show();
             });
 
         if (!$target_div.hasClass("loaded")) {
@@ -128,26 +113,25 @@ jQuery(function () {
                 data: { method: $this.attr("data-method"), username: page_username },
                 dataType: "json",
                 success: function (jsondata) {
-                        var ul = ['<ul>'];
-                        jsondata.items.map(function (item) {
-                            ul.push('<li><a href="' + item.link +
-                                      '">' + item.name + '</a></li>');
-                        });
-                        ul.push("</ul>");
-                        $target_div.append(ul.join("\n"));
-                        $target_div.addClass("loaded");
+                        var list = jsondata.items.map(function (item) {
+                                        return '<li><a href="' + item.link + 
+                                            '">' + item.name + '</a></li>';
+                                    });
+                        $target_div.html('<p></p><ul>' + list.join("\n") + '</ul>')
+                                   .addClass("loaded");
+                        setTimeout( function () { $target_div.removeClass("loaded"); },
+                                    5000);
                     },
                 failure: function () {
                         $flash.text("Something's gone wrong. Please try again");
                     },
                 });
         }
-        return false;
+        else {
+            $target_div.find("p").text("Not too quick");
+        }
+        e.preventDefault();
     } //showlistAction ends
-
-    function update_count(counter, by) {
-            
-    }
 
 //jQuery ends
 });

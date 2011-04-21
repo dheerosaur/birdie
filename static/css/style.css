@@ -1,2 +1,24 @@
 /* author: Dheeraj Sayala
  * */
+
+#container {
+  width: 960px;
+  margin: 0 auto;
+}
+
+#header, #userdetails, #follow_form {
+  position: absolute;
+  width: 250px;
+}
+
+#follow_form {
+  top: 100px;
+}
+#userdetails {
+  top: 140px;
+}
+#flash, #itemlists, #tweet_form {
+  margin-left: 260px;
+  width: 680;
+  padding: 0 10px;
+}

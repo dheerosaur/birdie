@@ -18,12 +18,12 @@
                 -->
             </li>
             <li>Followers 
-                <a name="followers" id="no_followers" class="ajaxable" href="/followers/{{bird.username}}"
-                    data-action="showitems" data-method="get_followers">{{ bird.no_followers }}</a>
+                <a id="no_followers" class="ajaxable" href="/followers/{{bird.username}}"
+                    data-action="showitems" data-method="get_followers" data-target-id="followers">{{ bird.no_followers }}</a>
             </li>
             <li>Following 
-                <a name="following" id="no_following" class="ajaxable" href="/following/{{bird.username}}"
-                    data-action="showitems" data-method="get_following">{{ bird.no_following }}</a>
+                <a id="no_following" class="ajaxable" href="/following/{{bird.username}}"
+                    data-action="showitems" data-method="get_following" data-target-id="following">{{ bird.no_following }}</a>
             </li>
 
             <li>Member since {{ bird.joined|date:"M, Y" }}</li>
@@ -39,23 +39,27 @@
     {% endif %}
 
     <div id="itemlists">
-        <div id="tweets loaded">
+        <div id="tweets" class="loaded">
             {% for tweet in tweets %}
             <div class="tweet">
+                <img src="{{ tweet.gravatar_url }}" alt="no-image" />
                 <a class="username" href="/user/{{tweet.username}}">{{tweet.username}}</a>
                 <span class="message">{{tweet.message}}</span>
-                <span class="pub_time">at {{tweet.published|date:"P \- D, M d"}}</span>
+                <span class="pub_time">{{tweet.published|date:"P \- D, M d"}}</span>
             </div>
             {% endfor %}
-
-            <div class="tweet_clone">
-                <a class="username"></a>
-                <span class="message"></span>
-                <span class="pub_time"></span>
-            </div>
         </div>
-        <div id="followers"></div>
-        <div id="following"></div>
+        <div id="followers" style="display: none;"><p></p></div>
+        <div id="following" style="display: none;"><p></p></div>
     </div>
+    <script id="tweet_tmpl" type="text/x-jquery-tmpl">
+        <div class="tweet">
+            <img src="${ gravatar_url }" alt="no-image" />
+            <a class="username" href="/user/${username}">${username}</a>
+            <span class="message">${message}</span>
+            <span class="pub_time">${published}</span>
+        </div>
+    </script>
+
 
 {% endblock %}

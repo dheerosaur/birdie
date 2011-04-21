@@ -11,10 +11,12 @@
     <div id="container">
         <header id="header">
             {% block header %}
-            <h1 class="title"><a href="/"><img src="" alt="Birdie"/></a></h1>
+            <h1 class="title"><a href="/">Birdie</a></h1>
             <div class="login">
                 {% if user %}
-                {% if bird %}<div id="curr_username">{{ bird.username }}</div>{% endif %}
+                {% if bird %}
+                    <div id="curr_username">{{ bird.username }}</div>
+                {% endif %}
                 <span class="item"><a href="{{ logout_url|escape }}">Sign out</a></span>
                 {% else %}
                 <span class="item"><a href="{{ login_url|escape }}">Sign in</a></span>
@@ -23,7 +25,9 @@
             {% endblock %}
         </header>
         <div id="flash">
-            {% if flash %}{{ flash }}{% endif %}
+            {% block flash %}
+                {% if flash %}{{ flash }}{% endif %}
+            {% endblock %}
         </div>
         <div id="main">
             {% block body %}{% endblock %}
@@ -35,6 +39,7 @@
 
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
   <script>!window.jQuery && document.write(unescape('%3Cscript src="/static/js/jquery-1.5.2.min.js"%3E%3C/script%3E'))</script>
+  <script src="/static/js/plugins.js"></script>
   <script src="/static/js/script.js"></script>
 </body>
 </html>
