@@ -76,7 +76,7 @@ class Bird(db.Model):
     account = db.UserProperty(auto_current_user_add=True)
     username = db.StringProperty(required=True)
     about = db.StringProperty()
-    gravatar_url = db.LinkProperty(required=True)
+    email_hash = db.StringProperty(required=True)
     joined = db.DateTimeProperty(auto_now_add=True)
     protected = db.BooleanProperty(default=False)
     no_tweets = db.IntegerProperty(default=0)
@@ -103,21 +103,21 @@ class Tweet(db.Model):
     published = db.DateTimeProperty(auto_now=True)
     author = db.ReferenceProperty(Bird)
     username = db.StringProperty(required=True)
-    gravatar_url = db.StringProperty(required=True)
+    email_hash = db.StringProperty(required=True)
 
     @staticmethod
     def post_message(msg):
         """Posts tweet
         """
         bird = Bird.get_current_bird()
-        username, gravatar_url = bird.username, bird.gravatar_url
+        username, email_hash = bird.username, bird.email_hash
         Tweet(message=msg,
                 author=bird,
                 username=username,
-                gravatar_url=gravatar_url).put()
+                email_hash=email_hash).put()
         bird.no_tweets += 1
         bird.put()
-        return username, gravatar_url, bird.no_tweets
+        return username, email_hash, bird.no_tweets
 
 # generate
 class BaseRequestHandler(webapp.RequestHandler):
@@ -126,6 +126,7 @@ class BaseRequestHandler(webapp.RequestHandler):
     def generate(self, template_name, template_values={}, login_redirect=False):
         homepage = 'http://' + self.request.host + '/'
         values = {
+                'error': self.request.get('error'),
                 'request': self.request,
                 'user' : users.get_current_user(),
                 'login_url': users.create_login_url(login_redirect or self.request.uri),
@@ -153,6 +154,7 @@ class TimeLineHandler(BaseRequestHandler):
                 following=following).fetch(30)
         self.generate("curr_user_timeline.html", {
             'tweets': tweets,
+            'curr_bird': bird,
             'bird': bird })
 
 class RegisterHandler(BaseRequestHandler):
@@ -177,9 +179,8 @@ class RegisterHandler(BaseRequestHandler):
         if len(about) > 1024:
             self.redirect('/register?error=too+long+about')
             return
-        gravatar_url = 'http://www.gravatar.com/avatar/%s?d=identicon&s=%d' % \
-                        (md5(users.get_current_user().email()).hexdigest(), 40)
-        bird = Bird(username=username, about=about, gravatar_url=gravatar_url)
+        email_hash = md5(users.get_current_user().email()).hexdigest()
+        bird = Bird(username=username, about=about, email_hash=email_hash)
         bird.put()
         self.redirect('/')
 
@@ -198,6 +199,7 @@ class UserTimeLineHandler(BaseRequestHandler):
         # Also check if it's bird's own timeline
         curr_bird = Bird.get_current_bird()
         if curr_bird:
+            template_values['curr_bird'] = curr_bird
             template_values['same_bird'] = (curr_bird.username == username)
             template_values['is_following'] = (bird.username in curr_bird.following_list)
 
@@ -208,6 +210,8 @@ class TweetHandler(BaseRequestHandler):
     """Posts a tweet."""
     def post(self):
         msg = regex_whitespace.sub(" ", self.request.get('message'))
+        if len(msg) > 140:
+            self.redirect(self.request.path + "?error=a+tweet+should+be+140+characters+long")
         Tweet.post_message(cgi.escape(msg))
         self.redirect(self.request.get('next'))
 
@@ -223,8 +227,11 @@ class PublicTimeLineHandler(BaseRequestHandler):
     """Shows public time line on the home page"""
     def get(self):
         public_tweets = Tweet.all().order('-published').fetch(20)
+        curr_bird = Bird.get_current_bird()
         self.generate('public.html',
-            { 'public_tweets' : public_tweets }, '/')
+            { 'public_tweets' : public_tweets,
+              'curr_bird': curr_bird,
+              }, '/')
 
 class FollowersHandler(BaseRequestHandler):
     """Shows followers of a bird"""
@@ -272,9 +279,9 @@ class RPCMethods:
     """
     def tweet(self, req):
         msg = req.get('message')
-        username, gravatar_url, no_tweets = Tweet.post_message(msg)
+        username, email_hash, no_tweets = Tweet.post_message(msg)
         return json.dumps({
-                "gravatar_url": gravatar_url,
+                "email_hash": email_hash,
                 "username": username,
                 "no_tweets": no_tweets,
             })

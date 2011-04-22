@@ -7,10 +7,11 @@
 
 {% block share %}
     <form id="tweet_form" action="/tweet" method="post">
+        <small id="message_alert">What's on your mind</small>
         <input type="hidden" name="next" value="{{ request.uri|escape }}" />
         <textarea id="tweet_message" rows="2" cols="80" name="message" value=""></textarea>
+        <span id="char_count">140</span><small> characters left</small>
         <input id="tweet_submit" type="submit" value="Share" />
-        <span id="char_count">140</span>
     </form>
 {% endblock %}
         

@@ -11,15 +11,15 @@
     <div id="container">
         <header id="header">
             {% block header %}
-            <h1 class="title"><a href="/">Birdie</a></h1>
+            <h1 id="logo"><a href="/">Birdie</a></h1>
             <div class="login">
                 {% if user %}
-                {% if bird %}
-                    <div id="curr_username">{{ bird.username }}</div>
-                {% endif %}
-                <span class="item"><a href="{{ logout_url|escape }}">Sign out</a></span>
+                    {% if curr_bird %}
+                    <span id="curr_username">{{ curr_bird.username }}</span> | 
+                    {% endif %}
+                <span><a href="{{ logout_url|escape }}">Sign out</a></span>
                 {% else %}
-                <span class="item"><a href="{{ login_url|escape }}">Sign in</a></span>
+                <span><a href="{{ login_url|escape }}">Sign in</a></span>
                 {% endif %}
             </div>
             {% endblock %}
@@ -29,6 +29,11 @@
                 {% if flash %}{{ flash }}{% endif %}
             {% endblock %}
         </div>
+        {% if error %}
+            <div id="error">
+                {{ error }}
+            </div>
+        {% endif %}
         <div id="main">
             {% block body %}{% endblock %}
         </div>

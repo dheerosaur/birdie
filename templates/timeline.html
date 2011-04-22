@@ -7,6 +7,7 @@
 {% block body %}
     <div id="userdetails">
         <h2 id="page_username">{{ bird.username }}</h2>
+        <img src="http://www.gravatar.com/avatar/{{bird.email_hash}}?d=identicon&s=150" />
         <p>{{ bird.about }}</p>
         <ul id="stats">
 
@@ -41,8 +42,8 @@
     <div id="itemlists">
         <div id="tweets" class="loaded">
             {% for tweet in tweets %}
-            <div class="tweet">
-                <img src="{{ tweet.gravatar_url }}" alt="no-image" />
+            <div class="tweet item">
+                <img src="http://www.gravatar.com/avatar/{{tweet.email_hash}}?d=identicon&s=50" />
                 <a class="username" href="/user/{{tweet.username}}">{{tweet.username}}</a>
                 <span class="message">{{tweet.message}}</span>
                 <span class="pub_time">{{tweet.published|date:"P \- D, M d"}}</span>
@@ -53,10 +54,11 @@
         <div id="following" style="display: none;"><p></p></div>
     </div>
     <script id="tweet_tmpl" type="text/x-jquery-tmpl">
-        <div class="tweet">
-            <img src="${ gravatar_url }" alt="no-image" />
+        <div class="tweet item">
+            <img src="http://www.gravatar.com/avatar/${email_hash}?d=identicon&s=50" />
             <a class="username" href="/user/${username}">${username}</a>
             <span class="message">${message}</span>
+            <br/>
             <span class="pub_time">${published}</span>
         </div>
     </script>

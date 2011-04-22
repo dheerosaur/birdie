@@ -42,6 +42,7 @@ jQuery(function () {
         $tmsg.bind('keyup mouseup',
             function () {
                 var val = $tmsg.val();
+                $tcount.removeClass("redtext");
                 if (val == '') {
                     $tsub.attr("disabled", "disabled");
                     $tcount.text(140);
@@ -49,13 +50,17 @@ jQuery(function () {
                 else {
                     $tsub.removeAttr("disabled");
                     $tcount.text(140 - val.length);
+                    if (val.length > 140) {
+                        $tcount.addClass("redtext");
+                        $tsub.attr("disabled", "disabled");
+                    }
                 }
             });
     } //curr_user_timeline specific code ends
         
     function tweetAction (e, $this) {
         var msg = $tmsg.val().replace(/\s+/g, ' ');
-        if (msg == '' || msg == ' ') return false;
+        if (msg == '' || msg == ' ' || msg.length > 140) return false;
 
         $.ajax({
             type: "POST",
@@ -65,7 +70,7 @@ jQuery(function () {
             success: function (jsondata) {
                   jsondata.message = msg;
                   jsondata.published = cur_time();
-                  $("#tweet_tmpl").tmpl(jsondata).prependTo("#tweets");
+                  $("#tweet_tmpl").tmpl(jsondata).hide().prependTo("#tweets").fadeIn(200);
                   $("#no_tweets").text(jsondata.no_tweets);
                   $tmsg.val('').focus().trigger('keydown');
                 },
@@ -103,8 +108,8 @@ jQuery(function () {
         var target_id = $this.attr("data-target-id"),
             $target_div = $("#" + target_id);
 
-        $("#itemlists").children().fadeOut(200, function () {
-                $target_div.show();
+        $target_div.siblings().hide(0, function () {
+                $target_div.fadeIn();
             });
 
         if (!$target_div.hasClass("loaded")) {
@@ -114,7 +119,7 @@ jQuery(function () {
                 dataType: "json",
                 success: function (jsondata) {
                         var list = jsondata.items.map(function (item) {
-                                        return '<li><a href="' + item.link + 
+                                        return '<li class="item"><a href="' + item.link + 
                                             '">' + item.name + '</a></li>';
                                     });
                         $target_div.html('<p></p><ul>' + list.join("\n") + '</ul>')

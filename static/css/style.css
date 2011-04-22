@@ -1,24 +1,48 @@
 /* author: Dheeraj Sayala
  * */
 
+.redtext { color: red; }
+body { 
+  font-size: 100%;
+  background-color: #c9ed7c;
+}
+small, .pub_time { font-size: 75%; 
+  color: #888;
+}
 #container {
-  width: 960px;
-  margin: 0 auto;
+  width: 52em;
+  margin: 1em auto;
+  padding: 1em 1em;
+  min-height: 25em;
 }
 
 #header, #userdetails, #follow_form {
-  position: absolute;
-  width: 250px;
+  position: fixed;
+  overflow: hidden;
+  width: 14em;
+  text-align: center; 
 }
-
-#follow_form {
-  top: 100px;
+#follow_form { top: 7em; }
+#userdetails { top: 9.5em; }
+#itemlists { }
+.item { 
+  padding: 0.5em 0.5em;
+  margin: 0.1em 0;
+  background: rgba(120, 120, 120, 0.2);
+  clear: both;
+  overflow: auto;
 }
-#userdetails {
-  top: 140px;
+.item > * { float: left;}
+#logo { 
+  font: bold normal 2.5em/1.25em "Droid Sans";
 }
 #flash, #itemlists, #tweet_form {
-  margin-left: 260px;
-  width: 680;
-  padding: 0 10px;
+  padding: 0 1em;
+  margin-left: 15em;
+  width: 34em;
 }
+#tweet_form { width: 33em; margin-bottom: 1.5em; }
+#tweet_message {
+  width: 100%;
+}
+#tweet_submit{ float: right; }
