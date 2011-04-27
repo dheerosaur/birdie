@@ -3,7 +3,8 @@
 {% block body %}
   {% block userdetails %}
     <div id="userdetails">
-        <img src="http://www.gravatar.com/avatar/{{bird.email_hash}}?d=identicon&s=150" />
+        <img src="http://www.gravatar.com/avatar/{{bird.email_hash}}?d=wavatar&s=125" />
+        <a id="change-photo" href="http://gravatar.com/site/signup">change photo</a>
         <h2 id="page_username">{{ bird.username }}</h2>
         <p id="about_me">{{ bird.about }}</p>
         {% if user %}
@@ -42,7 +43,7 @@
         <div id="tweets" class="loaded">
             {% for tweet in tweets %}
             <div class="tweet item">
-                <img src="http://www.gravatar.com/avatar/{{tweet.email_hash}}?d=identicon&s=50" />
+                <img src="http://www.gravatar.com/avatar/{{tweet.email_hash}}?d=wavatar&s=50" />
                 <a class="username" href="/user/{{tweet.username}}">{{tweet.username}}</a>
                 <span class="message">{{tweet.message}}</span>
                 <span class="pub_time">{{tweet.published|date:"P \- D, M d"}}</span>
@@ -58,7 +59,7 @@
 {% block tmplscript %}
 <script id="tweet_tmpl" type="text/x-jquery-tmpl">
     <div class="tweet item">
-        <img src="http://www.gravatar.com/avatar/${email_hash}?d=identicon&s=50" />
+        <img src="http://www.gravatar.com/avatar/${email_hash}?d=wavatar&s=50" />
         <a class="username" href="/user/${username}">${username}</a>
         <span class="message">${message}</span>
         <span class="pub_time">${published}</span>

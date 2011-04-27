@@ -3,15 +3,31 @@
 body { 
   font-size: 100%;
   font-family: "Droid Sans", sans-serif;
-  background-color: #dbf9ad;
+  background: #caf688;
 }
 
-a, a:visited, a:link { 
+a, a:visited, a:link, #curr_username {
   text-decoration: none;
+  color: rgba(100, 100, 100, 0.8);
+}
+
+input[type=text], textarea { 
+  font-size: 0.9em;
+  border: 1px solid lightgrey;
+  margin-bottom: 5px;
+}
+input[type=text]:focus, textarea:focus { 
+  border-color: transparent;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  -moz-box-shadow: 0 0 6px hsla(90, 60%, 20%, 0.8);
+  -webkit-box-shadow: 0 0 6px #caf688;
+  box-shadow: 0 0 6px #caf688;
 }
 
 #logo { 
-  font: bold normal 2.5em/1.1em "Droid Sans";
+  font: bold normal 2.5em/1.1em "josefin slab";
 }
 .login { font: .9em/1.5em "Droid Sans"; }
 #public_link, #back_home {
@@ -31,8 +47,10 @@ small, form>label, .pub_time {
   margin: 0 auto;
   padding: 1em 2px 1em 1em;
   min-height: 32em;
-  background: hsla(0, 0%, 50%, 0.1) fixed;
-  -moz-border-radius: 5px;
+  background: hsla(0, 0%, 88%, 0.1);
+  -moz-box-shadow: 0 0 4px hsla(90, 50%, 20%, 0.5);
+  -webkit-box-shadow: 0 0 4px hsla(90, 50%, 20%, 0.5);
+  box-shadow: 0 0 4px hsla(90, 50%, 20%, 0.5);
 }
 
 #header, #userdetails {
@@ -44,9 +62,27 @@ small, form>label, .pub_time {
 #userdetails { 
   top: 9em;
   padding-top: 10px;
-  background-image: -moz-linear-gradient(center top , rgba(82, 82, 82, 0.1) 48%, rgba(150, 150, 150, 0.1) 68%);
-  -moz-box-shadow: 1px 1px 4px #777;
-  -moz-border-radius: 10px;
+  background-image: -webkit-gradient( linear, left top, left bottom,
+                  color-stop(0.35, rgba(80,80,80, 0.12)),
+                  color-stop(0.72, rgba(150,150,150, 0.12)));
+  background-image: -moz-linear-gradient( center top, rgba(80,80,80, 0.12) 35%, rgba(150,150,150, 0.12) 72%);
+  -moz-box-shadow: 0 0 4px #888;
+  -webkit-box-shadow: 0 0 4px #777;
+  box-shadow: 0 0 4px #777;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+}
+#userdetails > img {
+  padding: 1em;
+}
+#change-photo {
+  display: block;
+  margin-top: -1.5em;
+  font: 0.8em/1.1em "Droid Sans";
+}
+#page_username { 
+  margin-top: 0.5em;
 }
 #about_me {
   display: block;
@@ -56,7 +92,7 @@ small, form>label, .pub_time {
 #error, #main {
   padding: 0 0.2em 0 0.8em;
   margin-left: 15em;
-  width: 36em;
+  width: 35.5em;
 }
 #itemlists { 
   font-size: 0.9em;
@@ -66,21 +102,17 @@ small, form>label, .pub_time {
                       color-stop(0.19, rgba(66,66,66,.1)),
                       color-stop(0.52, rgba(160,160,160,.1)));
   background-image: -moz-linear-gradient(center bottom, rgba(55,55,55, 0.1) 0%, rgba(150,150,150, 0.1) 75%);
-  padding: 0.5em 0.5em;
+  padding: 0.7em 0.9em;
   overflow: hidden;
   clear: both;
   word-wrap: break-word;
 }
 .item:hover {
-  -moz-transform: scale(1.01);
-  -webkit-transform: scale(1.01);
-  transform: scale(1.01);
-  -moz-box-shadow: 0 0 2px hsla(0, 0%, 25%, 0.6);
-  -webkit-box-shadow: 0 0 2px hsla(0, 0%, 25%, 0.6);
-  box-shadow: 0 0 2px hsla(0, 0%, 25%, 0.6);
+  -moz-box-shadow: 0 0 3px hsla(90, 0%, 25%, 0.6);
+  -webkit-box-shadow: 0 0 3px hsla(90, 0%, 25%, 0.6);
+  box-shadow: 0 0 3px hsla(90, 0%, 25%, 0.6);
   -moz-border-radius: 5px;
   border-radius: 5px;
-  text-shadow: 0 0 1px #ddd;
 }
 .item > img {
   position: absolute;
@@ -89,14 +121,19 @@ small, form>label, .pub_time {
   margin-left: 60px;
 }
 .tweet > .username { 
-  font: 0.9em/1.5 "Droid Sans";
+  font: bold normal 1em/1.5 "Droid Sans";
+  color: #666;
+}
+.tweet > .username:hover {
+  color: #0084b4;
 }
 .message { 
-  font: 1em/1.5 "Droid Sans";
+  font: 1em/1.25 "Droid Sans";
   display: block;
 }
 .pub_time { margin-top: 0.5em; }
 
+#register_form { width: 90%; }
 #register_form > * { display: block;
   margin: 5px;
 }

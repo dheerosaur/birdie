@@ -56,7 +56,7 @@ jQuery(function () {
                     $tcount.text(140);
                 }
                 else {
-                    $tsub.removeAttr("disabled");
+                    $tsub.attr("disabled", false);
                     $tcount.text(140 - val.length);
                     if (val.length > 140) {
                         $tcount.addClass("redtext");
@@ -129,17 +129,17 @@ jQuery(function () {
             });
 
         if (!$target_div.hasClass("loaded")) {
-            $this.append($ajax_loader.show());
+            $this.prepend($ajax_loader.show());
             $.ajax({
                 url: "/rpc",
                 data: { method: $this.attr("data-method"), username: page_username },
                 dataType: "json",
                 success: function (jsondata) {
                         var list = jsondata.items.map(function (item) {
-                                        return '<li class="item"><a href="' + item.link + 
-                                            '">' + item.name + '</a></li>';
+                                        return '<div class="item"><a href="' + item.link + 
+                                            '">' + item.name + '</a></div>';
                                     });
-                        $target_div.html('<p></p><ul>' + list.join("\n") + '</ul>')
+                        $target_div.html('<p></p>' + list.join("\n") )
                                    .addClass("loaded");
                         setTimeout( function () { $target_div.removeClass("loaded"); },
                                     5000);
