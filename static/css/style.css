@@ -1,48 +1,164 @@
 /* author: Dheeraj Sayala
  * */
-
-.redtext { color: red; }
 body { 
   font-size: 100%;
-  background-color: #c9ed7c;
+  font-family: "Droid Sans", sans-serif;
+  background-color: #dbf9ad;
 }
-small, .pub_time { font-size: 75%; 
+
+a, a:visited, a:link { 
+  text-decoration: none;
+}
+
+#logo { 
+  font: bold normal 2.5em/1.1em "Droid Sans";
+}
+.login { font: .9em/1.5em "Droid Sans"; }
+#public_link, #back_home {
+  display: block;
+  margin-top: 10px;
+}
+
+.redtext { color: red; }
+.ajax_loader { float: right; }
+
+small, form>label, .pub_time { 
+  font-size: 75%; 
   color: #888;
 }
 #container {
   width: 52em;
-  margin: 1em auto;
-  padding: 1em 1em;
-  min-height: 25em;
+  margin: 0 auto;
+  padding: 1em 2px 1em 1em;
+  min-height: 32em;
+  background: hsla(0, 0%, 50%, 0.1) fixed;
+  -moz-border-radius: 5px;
 }
 
-#header, #userdetails, #follow_form {
+#header, #userdetails {
   position: fixed;
   overflow: hidden;
   width: 14em;
   text-align: center; 
 }
-#follow_form { top: 7em; }
-#userdetails { top: 9.5em; }
-#itemlists { }
-.item { 
-  padding: 0.5em 0.5em;
-  margin: 0.1em 0;
-  background: rgba(120, 120, 120, 0.2);
-  clear: both;
-  overflow: auto;
+#userdetails { 
+  top: 9em;
+  padding-top: 10px;
+  background-image: -moz-linear-gradient(center top , rgba(82, 82, 82, 0.1) 48%, rgba(150, 150, 150, 0.1) 68%);
+  -moz-box-shadow: 1px 1px 4px #777;
+  -moz-border-radius: 10px;
 }
-.item > * { float: left;}
-#logo { 
-  font: bold normal 2.5em/1.25em "Droid Sans";
+#about_me {
+  display: block;
+  font-size: 0.8em;
+  padding: 0.2em 1.5em;
 }
-#flash, #itemlists, #tweet_form {
-  padding: 0 1em;
+#error, #main {
+  padding: 0 0.2em 0 0.8em;
   margin-left: 15em;
-  width: 34em;
+  width: 36em;
 }
+#itemlists { 
+  font-size: 0.9em;
+}
+.item {
+  background-image: -webkit-gradient( linear, left bottom, left top,
+                      color-stop(0.19, rgba(66,66,66,.1)),
+                      color-stop(0.52, rgba(160,160,160,.1)));
+  background-image: -moz-linear-gradient(center bottom, rgba(55,55,55, 0.1) 0%, rgba(150,150,150, 0.1) 75%);
+  padding: 0.5em 0.5em;
+  overflow: hidden;
+  clear: both;
+  word-wrap: break-word;
+}
+.item:hover {
+  -moz-transform: scale(1.01);
+  -webkit-transform: scale(1.01);
+  transform: scale(1.01);
+  -moz-box-shadow: 0 0 2px hsla(0, 0%, 25%, 0.6);
+  -webkit-box-shadow: 0 0 2px hsla(0, 0%, 25%, 0.6);
+  box-shadow: 0 0 2px hsla(0, 0%, 25%, 0.6);
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  text-shadow: 0 0 1px #ddd;
+}
+.item > img {
+  position: absolute;
+}
+.tweet > .username, .message, .pub_time {
+  margin-left: 60px;
+}
+.tweet > .username { 
+  font: 0.9em/1.5 "Droid Sans";
+}
+.message { 
+  font: 1em/1.5 "Droid Sans";
+  display: block;
+}
+.pub_time { margin-top: 0.5em; }
+
+#register_form > * { display: block;
+  margin: 5px;
+}
+textarea { width: 100%; }
+
 #tweet_form { width: 33em; margin-bottom: 1.5em; }
-#tweet_message {
-  width: 100%;
-}
 #tweet_submit{ float: right; }
+
+.fbutton, .ufbutton {
+  width: 60%;
+  font: 0.9em/1.4em "Droid Sans";
+  padding: 2px 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+}
+.fbutton { 
+  background: lightblue;
+}
+
+.ufbutton { 
+  background: lightgreen;
+}
+.ufbutton:hover { 
+  color: #fff; 
+  text-shadow: 1px 1px 2px #999;
+  background: rgba(210, 88, 99, 0.8);
+}
+
+#stats {
+  list-style: none;
+  text-align: left;
+  padding: 0.8em 0.5em;
+  margin-left: 0;
+}
+#stats > li {
+  display: block;
+  padding: 3px;
+  padding-left: 1em;
+  border: 1px solid hsla(0, 0%, 50%, 0.2);
+}
+#stats a { 
+  float: right;
+  padding-right: 1em;
+  padding-left: 0.5em;
+}
+
+#request_login {
+  margin: 1em;
+}
+
+#login_button {
+  display: block;
+  margin: 10px 10px;
+  padding: 5px;
+  color: white;
+  background-color: hsla(95, 50%, 50%, 0.6);
+  font: 1.5em "Droid Sans";
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  -moz-box-shadow: 1px 1px 2px #666;
+}
+#login_button:hover {
+  background-color: hsla(95, 50%, 40%, 0.6);
+}

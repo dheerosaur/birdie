@@ -4,18 +4,26 @@
     Public Timeline
 {% endblock %}
 
-{% if not user %}
-    {% block flash%}
-        Please login using your google account to use Birdie
-    {% endblock %}
-{% endif %}
+
+{% block header %}
+    <h1 id="logo"><a href="/">Birdie</a></h1>
+    {% if not user %}
+        <div id="request_login">Please login using your google account
+            <a id="login_button" href="{{ login_url|escape }}">Sign in</a>
+        </div>
+    {% else %}
+        <a href="{{ logout_url|escape }}">Sign out</a>
+        <a id="back_home" href="/">Back to Home</a>
+    {% endif %}
+{% endblock %}
 
 {% block body %}
+<div id="main">
     <div id="itemlists">
         <div id="tweets">
             {% for tweet in public_tweets %}
             <div class="tweet item">
-                <img src="http://www.gravatar.com/avatar/{{tweet.email_hash}}?d=identicon&s=40" />
+                <img src="http://www.gravatar.com/avatar/{{tweet.email_hash}}?d=identicon&s=50" />
                 <a class="username" href="/user/{{tweet.username}}">{{ tweet.username }}</a>
                 <span class="message">{{ tweet.message }}</span>
                 <span class="pub_time">at {{ tweet.published|date:"P \- D, M d" }}</span>
@@ -23,5 +31,5 @@
             {% endfor %}
         </div>
     </div>
-
+</div> <!-- end of main -->
 {% endblock %}

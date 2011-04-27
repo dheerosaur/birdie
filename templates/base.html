@@ -17,26 +17,20 @@
                     {% if curr_bird %}
                     <span id="curr_username">{{ curr_bird.username }}</span> | 
                     {% endif %}
-                <span><a href="{{ logout_url|escape }}">Sign out</a></span>
+                    <a href="{{ logout_url|escape }}">Sign out</a>
                 {% else %}
-                <span><a href="{{ login_url|escape }}">Sign in</a></span>
+                    <a href="{{ login_url|escape }}">Sign in</a>
                 {% endif %}
             </div>
+            <a id="public_link" href="/public">Public Timeline</a>
             {% endblock %}
         </header>
-        <div id="flash">
-            {% block flash %}
-                {% if flash %}{{ flash }}{% endif %}
-            {% endblock %}
+        <div id="error">
+            {% if error %}
+                <small class="redtext">{{ error }}</small>
+            {% endif %}
         </div>
-        {% if error %}
-            <div id="error">
-                {{ error }}
-            </div>
-        {% endif %}
-        <div id="main">
-            {% block body %}{% endblock %}
-        </div>
+        {% block body %}{% endblock %}
         <footer>
             {% block footer %}{% endblock %}
         </footer>

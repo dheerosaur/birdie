@@ -1,14 +1,15 @@
 {% extends "base.html" %}
 
 {% block body %}
-  <form action="/register" method="post">
-      {% if error %}
-      <p>{{ error }}</p>
-      {% endif %}
+<div id="main">
+  <form id="register_form" action="/register" method="post">
       <input type="hidden" name="next" value="{{ request.uri|escape }}"/>
+      <label for="username">Create a handle for yourself. eg: watson</label>
       <input type="text" name="username" value="" />
+      <label for="about">Describe yourself in less than 140 characters</label>
       <textarea name="about" value=""></textarea>
       <input type="submit" value="Create" />
   </form>
+</div>
 
 {% endblock %}

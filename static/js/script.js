@@ -1,19 +1,25 @@
 function cur_time(id) {
     var dt = new Date();
-    return dt.toTimeString().substr(0,5) + dt.toDateString();
+    var timepart = dt.toTimeString().substr(0, 5);
+    var date_str = dt.toDateString();
+    var date_part = date_str.substr(0,3) + ", " + date_str.substr(4, 6);
+    return timepart + " - " + date_part;
+}
+
+function returnTrue(){
+    return true;
 }
 
 jQuery(function () {
     var page_username = $("#page_username").text(),
         curr_username = $("#curr_username").text(),
-        $flash = $("#flash");
+        $flash = $("#flash"),
+        $ajax_loader = $('<img class="ajax_loader">').attr("src", "/static/images/ajax-loader.gif");
 
     var actions = {
         tweet: tweetAction,
-        follow: function (e, $this) { 
-                    return followAction(e, $this.find(".fbutton,.ufbutton"), true); 
-                },
-        register: function () { return true; },
+        follow: followAction,
+        register: returnTrue,
         showitems: showItemsAction,
     };
 
@@ -26,6 +32,8 @@ jQuery(function () {
         var action = $(this).attr("data-action");
         return actions[action](e, $(this));
     });
+
+    $(".ufbutton").val("Following");
 
     if ( $("body").hasClass("curr_user_timeline") ){
 
@@ -62,6 +70,8 @@ jQuery(function () {
         var msg = $tmsg.val().replace(/\s+/g, ' ');
         if (msg == '' || msg == ' ' || msg.length > 140) return false;
 
+        $this.append($ajax_loader.show());
+
         $.ajax({
             type: "POST",
             url: "/rpc", 
@@ -77,11 +87,14 @@ jQuery(function () {
             failure: function (data) {
                   $flash.text("Something's gone wrong. Please try again");
                 },
+            complete: ajaxComplete,
             });
         e.preventDefault()
     } //tweetAction ends
 
-    function followAction (e, $button, is_main) {
+    function followAction (e, $form) {
+        var $button = $form.find(".fbutton,.ufbutton");
+        $button.attr("disabled", "disabled");
         $.ajax({
             type: "POST", url: "/rpc", 
             data: { method: 'follow', username: page_username },
@@ -99,6 +112,9 @@ jQuery(function () {
             failure: function (data) {
                   $flash.text("Something's gone wrong. Please try again");
                 },
+            complete: function () {
+                  $button.attr('disabled', false);
+                },
             });
         return false;
     } //followAction ends
@@ -113,6 +129,7 @@ jQuery(function () {
             });
 
         if (!$target_div.hasClass("loaded")) {
+            $this.append($ajax_loader.show());
             $.ajax({
                 url: "/rpc",
                 data: { method: $this.attr("data-method"), username: page_username },
@@ -130,13 +147,14 @@ jQuery(function () {
                 failure: function () {
                         $flash.text("Something's gone wrong. Please try again");
                     },
+                complete: ajaxComplete,
                 });
-        }
-        else {
-            $target_div.find("p").text("Not too quick");
         }
         e.preventDefault();
     } //showlistAction ends
 
+    function ajaxComplete() {
+        $ajax_loader.hide();
+    }
 //jQuery ends
 });

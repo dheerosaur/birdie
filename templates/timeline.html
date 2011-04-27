@@ -1,22 +1,19 @@
 {% extends "base.html" %}
 
-{% block title %}
-{{ bird.username }}'s Timeline
-{% endblock %}
-
 {% block body %}
+  {% block userdetails %}
     <div id="userdetails">
-        <h2 id="page_username">{{ bird.username }}</h2>
         <img src="http://www.gravatar.com/avatar/{{bird.email_hash}}?d=identicon&s=150" />
-        <p>{{ bird.about }}</p>
-        <ul id="stats">
+        <h2 id="page_username">{{ bird.username }}</h2>
+        <p id="about_me">{{ bird.about }}</p>
+        {% if user %}
+            {% block follow_unfollow %}
+            {% endblock %}
+        {% endif %}
 
+        <ul id="stats">
             <li>Tweets 
                 <a href="/user/{{bird.username}}" id="no_tweets">{{bird.no_tweets}}</a>
-                <!--
-                <a name="tweets" id="no_tweets" class="ajaxable" href="/user/{{bird.username}}"
-                    data-action="showitems" data-method="get_tweets">{{ bird.no_tweets }}</a>
-                -->
             </li>
             <li>Followers 
                 <a id="no_followers" class="ajaxable" href="/followers/{{bird.username}}"
@@ -26,19 +23,21 @@
                 <a id="no_following" class="ajaxable" href="/following/{{bird.username}}"
                     data-action="showitems" data-method="get_following" data-target-id="following">{{ bird.no_following }}</a>
             </li>
-
-            <li>Member since {{ bird.joined|date:"M, Y" }}</li>
         </ul>
     </div>
-
-    {% if user %}
-        {% block follow_unfollow %}
+  {% endblock %}
+<div id="main">
+    <div id="flash">
+        {% block flash %}
+            {% if flash %}{{ flash }}{% endif %}
         {% endblock %}
-
+    </div>
+    {% if user %}
         {% block share %}
         {% endblock %}
     {% endif %}
 
+  {% block itemlists %}
     <div id="itemlists">
         <div id="tweets" class="loaded">
             {% for tweet in tweets %}
@@ -53,15 +52,18 @@
         <div id="followers" style="display: none;"><p></p></div>
         <div id="following" style="display: none;"><p></p></div>
     </div>
-    <script id="tweet_tmpl" type="text/x-jquery-tmpl">
-        <div class="tweet item">
-            <img src="http://www.gravatar.com/avatar/${email_hash}?d=identicon&s=50" />
-            <a class="username" href="/user/${username}">${username}</a>
-            <span class="message">${message}</span>
-            <br/>
-            <span class="pub_time">${published}</span>
-        </div>
-    </script>
+  {% endblock %}
+</div> <!-- end of main-->
 
+{% block tmplscript %}
+<script id="tweet_tmpl" type="text/x-jquery-tmpl">
+    <div class="tweet item">
+        <img src="http://www.gravatar.com/avatar/${email_hash}?d=identicon&s=50" />
+        <a class="username" href="/user/${username}">${username}</a>
+        <span class="message">${message}</span>
+        <span class="pub_time">${published}</span>
+    </div>
+</script>
+{% endblock tmplscript %}
 
 {% endblock %}

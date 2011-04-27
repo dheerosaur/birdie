@@ -1,4 +1,9 @@
 {% extends "timeline.html" %}
+
+{% block title %}
+    {{bird.username}}'s Timeline
+{% endblock title %}
+
 {% block follow_unfollow %}
 {% if not same_bird %}
     <form id="follow_form" action="/follow" method="post">

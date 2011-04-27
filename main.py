@@ -176,7 +176,7 @@ class RegisterHandler(BaseRequestHandler):
             self.redirect('/register?error=username+exists')
             return
         about = self.request.get('about')
-        if len(about) > 1024:
+        if len(about) > 140:
             self.redirect('/register?error=too+long+about')
             return
         email_hash = md5(users.get_current_user().email()).hexdigest()
@@ -233,17 +233,20 @@ class PublicTimeLineHandler(BaseRequestHandler):
               'curr_bird': curr_bird,
               }, '/')
 
-class FollowersHandler(BaseRequestHandler):
-    """Shows followers of a bird"""
+class FolsHandler(BaseRequestHandler):
+    """Shows followers or following of a bird depending on the path"""
     @req_login
     def get(self, username):
-        return
-
-class FollowingHandler(BaseRequestHandler):
-    """Shows followers of a bird"""
-    @req_login
-    def get(self, username):
-        return
+        fols = self.request.path.split('/')[1]
+        bird = Bird.get_by_username(username)
+        if not bird:
+            self.error(404)
+            return
+        self.generate('fols.html',
+                { 'items': getattr(bird, fols + '_list'),
+                  'fols': fols,
+                  'bird': bird,
+                  }, '/')
 
 class RPCHandler(webapp.RequestHandler):
     """Handles RPC requests"""
@@ -291,11 +294,9 @@ class RPCMethods:
         return json.dumps({"no_followers" : no_followers})
 
     def get_users_json(self, of, username):
-        l = []
-        for item in getattr(Bird.get_by_username(username), of):
-            l.append({ 'name' : item,
-                       'link' : "/user/"+item,
-                       })
+        l = [ { 'name': item,
+                'link': "/user/" + item }
+            for item in getattr(Bird.get_by_username(username), of)]
         d = dict(items=l)
         return json.dumps(d)
 
@@ -311,8 +312,8 @@ _URLS = (('/', TimeLineHandler),
          ('/follow', FollowHandler),
          ('/public', PublicTimeLineHandler),
          ('/user/(.*)', UserTimeLineHandler),
-         ('/followers/(.*)', FollowersHandler),
-         ('/following/(.*)', FollowingHandler),
+         ('/followers/(.*)', FolsHandler),
+         ('/following/(.*)', FolsHandler),
          ('/rpc', RPCHandler),
          )
 

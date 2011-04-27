@@ -1,0 +1,18 @@
+{% extends "timeline.html" %}
+
+{% block title %}
+{{ bird.username }}'s {{ fols }}
+{% endblock %}
+
+{% block itemlists %}
+    <div id="itemlists">
+        <div id="{{ fols }}">
+            <ul>
+            {% for item in items %}
+                <li class="item">
+                    <a href="/user/{{ item }}">{{ item }}</a>
+                </li>
+            {% endfor %}
+            </ul>
+        </div>
+{% endblock %}
