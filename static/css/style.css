@@ -3,12 +3,12 @@
 body { 
   font-size: 100%;
   font-family: "Droid Sans", sans-serif;
-  background: #caf688;
+  background: rgba(165, 42, 42, 0.8);
 }
 
 a, a:visited, a:link, #curr_username {
   text-decoration: none;
-  color: rgba(100, 100, 100, 0.8);
+  color: brown;
 }
 
 input[type=text], textarea { 
@@ -21,13 +21,15 @@ input[type=text]:focus, textarea:focus {
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border-radius: 5px;
-  -moz-box-shadow: 0 0 6px hsla(90, 60%, 20%, 0.8);
-  -webkit-box-shadow: 0 0 6px #caf688;
-  box-shadow: 0 0 6px #caf688;
+  -moz-box-shadow: 0 0 6px rgba(165, 42, 42, 0.6);
+  -webkit-box-shadow: 0 0 6px rgba(165, 42, 42, 0.6);
+  box-shadow: 0 0 6px rgba(165, 42, 42, 0.6);
 }
+textarea { width: 90%; }
+#tweet_message { width: 100%; }
 
 #logo { 
-  font: bold normal 2.5em/1.1em "josefin slab";
+  font: bold normal 2.8em/1.2em "josefin slab";
 }
 .login { font: .9em/1.5em "Droid Sans"; }
 #public_link, #back_home {
@@ -40,17 +42,18 @@ input[type=text]:focus, textarea:focus {
 
 small, form>label, .pub_time { 
   font-size: 75%; 
-  color: #888;
+  color: #666;
 }
 #container {
+  position: relative;
   width: 52em;
   margin: 0 auto;
-  padding: 1em 2px 1em 1em;
-  min-height: 32em;
-  background: hsla(0, 0%, 88%, 0.1);
-  -moz-box-shadow: 0 0 4px hsla(90, 50%, 20%, 0.5);
-  -webkit-box-shadow: 0 0 4px hsla(90, 50%, 20%, 0.5);
-  box-shadow: 0 0 4px hsla(90, 50%, 20%, 0.5);
+  padding: 1em 2px 4em 1em;
+  min-height: 33em;
+  background: lightyellow;
+  -moz-box-shadow: 0 0 8px #444;
+  -webkit-box-shadow: 0 0 8px #444;
+  box-shadow: 0 0 8px #444;
 }
 
 #header, #userdetails {
@@ -58,6 +61,16 @@ small, form>label, .pub_time {
   overflow: hidden;
   width: 14em;
   text-align: center; 
+}
+#footer {
+  position: absolute;
+  bottom: 0;
+  height: 2em;
+  width: 50em;
+  text-align: center;
+}
+#footer > span {
+  font-size: 80%;
 }
 #userdetails { 
   top: 9em;
@@ -79,6 +92,7 @@ small, form>label, .pub_time {
 #change-photo {
   display: block;
   margin-top: -1.5em;
+  color: grey;
   font: 0.8em/1.1em "Droid Sans";
 }
 #page_username { 
@@ -95,7 +109,7 @@ small, form>label, .pub_time {
   width: 35.5em;
 }
 #itemlists { 
-  font-size: 0.9em;
+  font-size: 0.95em;
 }
 .item {
   background-image: -webkit-gradient( linear, left bottom, left top,
@@ -108,9 +122,9 @@ small, form>label, .pub_time {
   word-wrap: break-word;
 }
 .item:hover {
-  -moz-box-shadow: 0 0 3px hsla(90, 0%, 25%, 0.6);
-  -webkit-box-shadow: 0 0 3px hsla(90, 0%, 25%, 0.6);
-  box-shadow: 0 0 3px hsla(90, 0%, 25%, 0.6);
+  -moz-box-shadow: 0 0 4px hsla(90, 0%, 25%, 0.6);
+  -webkit-box-shadow: 0 0 4px hsla(90, 0%, 25%, 0.6);
+  box-shadow: 0 0 4px hsla(90, 0%, 25%, 0.6);
   -moz-border-radius: 5px;
   border-radius: 5px;
 }
@@ -121,11 +135,11 @@ small, form>label, .pub_time {
   margin-left: 60px;
 }
 .tweet > .username { 
-  font: bold normal 1em/1.5 "Droid Sans";
-  color: #666;
+  font: bold normal 0.95em/1.5 "Droid Sans";
+  color: rgba(165, 42, 42, 0.8);
 }
 .tweet > .username:hover {
-  color: #0084b4;
+  color: rgba(165, 42, 42, 1);
 }
 .message { 
   font: 1em/1.25 "Droid Sans";
@@ -137,7 +151,6 @@ small, form>label, .pub_time {
 #register_form > * { display: block;
   margin: 5px;
 }
-textarea { width: 100%; }
 
 #tweet_form { width: 33em; margin-bottom: 1.5em; }
 #tweet_submit{ float: right; }
@@ -188,8 +201,8 @@ textarea { width: 100%; }
   display: block;
   margin: 10px 10px;
   padding: 5px;
-  color: white;
-  background-color: hsla(95, 50%, 50%, 0.6);
+  color: lightyellow;
+  background-color: rgba(165, 42, 42, 0.6);
   font: 1.5em "Droid Sans";
   -moz-border-radius: 10px;
   -webkit-border-radius: 10px;
@@ -197,5 +210,5 @@ textarea { width: 100%; }
   -moz-box-shadow: 1px 1px 2px #666;
 }
 #login_button:hover {
-  background-color: hsla(95, 50%, 40%, 0.6);
+  background-color: rgba(165, 42, 42, 0.8);
 }
