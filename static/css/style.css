@@ -54,7 +54,7 @@ small, form>label, .pub_time {
   text-align: center;
 }
 #logo a {
-  color: #C7F464;
+  color: #B3DC5A;
   font: 4em/1.5 Lobster;
   text-shadow: -2px -2px #222, 1px 0 #666;
 }
@@ -71,7 +71,7 @@ small, form>label, .pub_time {
   float: left;
   margin: 0 1em;
   padding: 0.5em 0.5em;
-  color: #C7F464;
+  color: #B3DC5A;
   text-shadow: 0 1px #666;
 }
 #container {
@@ -229,7 +229,7 @@ small, form>label, .pub_time {
   position: absolute;
   right: 1em;
   bottom: 1em;
-  color: #C7F464;
+  color: #B3DC5A;
 }
 #login_button {
   text-align: center;
@@ -237,7 +237,7 @@ small, form>label, .pub_time {
   padding: 0.2em 0.5em;
   color: #fafafa;
   text-shadow: 1px 1px #888;
-  background-color: hsla(79, 57%, 47%, 1);
+  background-color: hsla(79, 57%, 42%, 1);
   font: 1.5em "Droid Sans";
   -moz-border-radius: 10px;
   -webkit-border-radius: 10px;
