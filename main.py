@@ -233,7 +233,7 @@ class PublicTimeLineHandler(BaseRequestHandler):
               'curr_bird': curr_bird,
               }, '/')
 
-class FolsHandler(BaseRequestHandler):
+class GetItemsHandler(BaseRequestHandler):
     """Shows followers or following of a bird depending on the path"""
     @req_login
     def get(self, username):
@@ -244,7 +244,7 @@ class FolsHandler(BaseRequestHandler):
             return
         self.generate('fols.html',
                 { 'items': getattr(bird, fols + '_list'),
-                  'fols': fols,
+                  fols: fols,
                   'bird': bird,
                   }, '/')
 
@@ -312,8 +312,8 @@ _URLS = (('/', TimeLineHandler),
          ('/follow', FollowHandler),
          ('/public', PublicTimeLineHandler),
          ('/user/(.*)', UserTimeLineHandler),
-         ('/followers/(.*)', FolsHandler),
-         ('/following/(.*)', FolsHandler),
+         ('/followers/(.*)', GetItemsHandler),
+         ('/following/(.*)', GetItemsHandler),
          ('/rpc', RPCHandler),
          )
 

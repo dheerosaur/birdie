@@ -1,0 +1,32 @@
+{% extends "timeline.html" %}
+
+{% block title %}
+{{ bird.username }}'s {{ fols }}
+{% endblock %}
+
+{% block itemlists %}
+    {% if followers %}
+        <div id="itemlists">
+            <div id="followers">
+                {% for item in items %}
+                    <div class="item">
+                        <a href="/user/{{ item }}">{{ item }}</a>
+                    </div>
+                {% endfor %}
+            </div>
+            <div id="following" style="display: none;"></div>
+        </div>
+    {% endif %}
+    {% if following %}
+        <div id="itemlists">
+            <div id="followers" style="display: none;"></div>
+            <div id="following">
+                {% for item in items %}
+                    <div class="item">
+                        <a href="/user/{{ item }}">{{ item }}</a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
