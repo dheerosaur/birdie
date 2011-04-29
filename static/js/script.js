@@ -120,7 +120,6 @@ jQuery(function () {
     } //followAction ends
 
     function showItemsAction (e, $this) {
-        if (! curr_username) return true;
         var target_id = $this.attr("data-target-id"),
             $target_div = $("#" + target_id);
 
