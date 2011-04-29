@@ -3,12 +3,11 @@
 body { 
   font-size: 100%;
   font-family: "Droid Sans", sans-serif;
-  background: rgba(165, 42, 42, 0.8);
+  background: url("/static/images/bg.jpg") repeat scroll 0 0 #393939;
 }
 
 a, a:visited, a:link, #curr_username {
   text-decoration: none;
-  color: brown;
 }
 
 input[type=text], textarea { 
@@ -21,64 +20,92 @@ input[type=text]:focus, textarea:focus {
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border-radius: 5px;
-  -moz-box-shadow: 0 0 6px rgba(165, 42, 42, 0.6);
-  -webkit-box-shadow: 0 0 6px rgba(165, 42, 42, 0.6);
-  box-shadow: 0 0 6px rgba(165, 42, 42, 0.6);
+  -moz-box-shadow: 0 0 6px rgba(199, 244, 100, 1);
+  -webkit-box-shadow: 0 0 6px rgba(199, 244, 100, 1);
+  box-shadow: 0 0 6px rgba(199, 244, 100, 1);
 }
 textarea { width: 90%; }
 #tweet_message { width: 100%; }
 
-#logo { 
-  font: bold normal 2.8em/1.2em "josefin slab";
-}
 .login { font: .9em/1.5em "Droid Sans"; }
-#public_link, #back_home {
-  display: block;
-  margin-top: 10px;
-}
 
 .redtext { color: red; }
-.ajax_loader { float: right; }
+.ajax_loader { 
+  float: right; 
+  margin: 2px;
+
+}
 
 small, form>label, .pub_time { 
   font-size: 75%; 
   color: #666;
 }
+
+#header, #container, #footer {
+  position: relative;
+  width: 55em;
+  margin: 0 auto;
+  overflow: hidden;
+}
+#logo {
+  display: block;
+  float: left;
+  width: 15em;
+  text-align: center;
+}
+#logo a {
+  color: #C7F464;
+  font: 4em/1.5 Lobster;
+  text-shadow: -2px -2px #222, 1px 0 #666;
+}
+
+#nav {
+  font-size: 105%;
+  position: absolute;
+  right: 1em;
+  bottom: 1em;
+  margin-top: 1.5em;
+}
+#nav > a {
+  display: block;
+  float: left;
+  margin: 0 1em;
+  padding: 0.5em 0.5em;
+  color: #C7F464;
+  text-shadow: 0 1px #666;
+}
 #container {
   position: relative;
-  width: 52em;
-  margin: 0 auto;
-  padding: 1em 2px 4em 1em;
-  min-height: 33em;
-  background: lightyellow;
+  padding: 1em;
+  min-height: 32em;
+  background: #f9f9f9;
   -moz-box-shadow: 0 0 8px #444;
   -webkit-box-shadow: 0 0 8px #444;
   box-shadow: 0 0 8px #444;
+  -moz-border-radius: 5px;
 }
 
-#header, #userdetails {
-  position: fixed;
-  overflow: hidden;
-  width: 14em;
-  text-align: center; 
+#footer > span {
+  font-size: 90%;
 }
-#footer {
+#intro {
   position: absolute;
-  bottom: 0;
-  height: 2em;
-  width: 50em;
+  width: 10em;
+  top: 2em;
+  font-size: 150%;
+  font-family: "Dancing Script";
   text-align: center;
 }
-#footer > span {
-  font-size: 80%;
-}
 #userdetails { 
-  top: 9em;
-  padding-top: 10px;
-  background-image: -webkit-gradient( linear, left top, left bottom,
-                  color-stop(0.35, rgba(80,80,80, 0.12)),
-                  color-stop(0.72, rgba(150,150,150, 0.12)));
-  background-image: -moz-linear-gradient( center top, rgba(80,80,80, 0.12) 35%, rgba(150,150,150, 0.12) 72%);
+  position: absolute;
+  width: 15em;
+  overflow: hidden;
+  text-align: center; 
+  background: -moz-linear-gradient(top, rgba(199,244,100,.25) 10%, rgba(157,191,78,.25) 100%); /* firefox */
+  background: -webkit-gradient(linear, left top, left bottom, 
+                color-stop(10%,rgba(199,244,100,.25)), 
+                color-stop(100%,rgba(157,191,78,.25))); /* webkit */
+
   -moz-box-shadow: 0 0 4px #888;
   -webkit-box-shadow: 0 0 4px #777;
   box-shadow: 0 0 4px #777;
@@ -96,6 +123,7 @@ small, form>label, .pub_time {
   font: 0.8em/1.1em "Droid Sans";
 }
 #page_username { 
+  color: #556270;
   margin-top: 0.5em;
 }
 #about_me {
@@ -105,26 +133,29 @@ small, form>label, .pub_time {
 }
 #error, #main {
   padding: 0 0.2em 0 0.8em;
-  margin-left: 15em;
-  width: 35.5em;
+  margin-left: 16em;
+  width: 38em;
+  -moz-box-shadow: -1px 0 0 hsla(0, 60%, 60%, 0.2);
+  -webkit-box-shadow: -1px 0 0 hsla(0, 60%, 60%, 0.2);
+  box-shadow: -1px 0 0 hsla(0, 60%, 60%, 0.2);
 }
 #itemlists { 
   font-size: 0.95em;
 }
 .item {
-  background-image: -webkit-gradient( linear, left bottom, left top,
-                      color-stop(0.19, rgba(66,66,66,.1)),
-                      color-stop(0.52, rgba(160,160,160,.1)));
-  background-image: -moz-linear-gradient(center bottom, rgba(55,55,55, 0.1) 0%, rgba(150,150,150, 0.1) 75%);
+  background: -moz-linear-gradient(top, rgba(199,244,100,.25) 10%, rgba(157,191,78,.25) 100%); /* firefox */
+  background: -webkit-gradient(linear, left top, left bottom, 
+                color-stop(10%,rgba(199,244,100,.25)), 
+                color-stop(100%,rgba(157,191,78,.25))); /* webkit */
   padding: 0.7em 0.9em;
   overflow: hidden;
   clear: both;
   word-wrap: break-word;
 }
 .item:hover {
-  -moz-box-shadow: 0 0 4px hsla(90, 0%, 25%, 0.6);
-  -webkit-box-shadow: 0 0 4px hsla(90, 0%, 25%, 0.6);
-  box-shadow: 0 0 4px hsla(90, 0%, 25%, 0.6);
+  -moz-box-shadow: 0 0 3px hsla(90, 0%, 25%, 0.6);
+  -webkit-box-shadow: 0 0 3px hsla(90, 0%, 25%, 0.6);
+  box-shadow: 0 0 3px hsla(90, 0%, 25%, 0.6);
   -moz-border-radius: 5px;
   border-radius: 5px;
 }
@@ -136,13 +167,13 @@ small, form>label, .pub_time {
 }
 .tweet > .username { 
   font: bold normal 0.95em/1.5 "Droid Sans";
-  color: rgba(165, 42, 42, 0.8);
+  color: #556270;
 }
 .tweet > .username:hover {
-  color: rgba(165, 42, 42, 1);
+  color: blue;
 }
 .message { 
-  font: 1em/1.25 "Droid Sans";
+  font: 0.95em/1.4 "Droid Serif";
   display: block;
 }
 .pub_time { margin-top: 0.5em; }
@@ -152,7 +183,7 @@ small, form>label, .pub_time {
   margin: 5px;
 }
 
-#tweet_form { width: 33em; margin-bottom: 1.5em; }
+#tweet_form { width: 37.8em; margin-bottom: 1.9em; }
 #tweet_submit{ float: right; }
 
 .fbutton, .ufbutton {
@@ -194,21 +225,25 @@ small, form>label, .pub_time {
 }
 
 #request_login {
-  margin: 1em;
+  font-size: 105%;
+  position: absolute;
+  right: 1em;
+  bottom: 1em;
+  color: #C7F464;
 }
-
 #login_button {
-  display: block;
-  margin: 10px 10px;
-  padding: 5px;
-  color: lightyellow;
-  background-color: rgba(165, 42, 42, 0.6);
+  text-align: center;
+  margin: 0.5em;
+  padding: 0.2em 0.5em;
+  color: #fafafa;
+  text-shadow: 1px 1px #888;
+  background-color: hsla(79, 57%, 47%, 1);
   font: 1.5em "Droid Sans";
   -moz-border-radius: 10px;
   -webkit-border-radius: 10px;
   border-radius: 10px;
-  -moz-box-shadow: 1px 1px 2px #666;
 }
 #login_button:hover {
-  background-color: rgba(165, 42, 42, 0.8);
+  background-color: hsla(89, 57%, 37%, 1);
+  -moz-box-shadow: 1px 1px 2px #666;
 }
