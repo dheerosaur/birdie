@@ -8,12 +8,14 @@
 {% block header %}
     <h1 id="logo"><a href="/">Birdie</a></h1>
     {% if not user %}
-        <div id="request_login">Please login using your google account
+        <div id="request_login">Please use your google account to
             <a id="login_button" href="{{ login_url|escape }}">Sign in</a>
         </div>
     {% else %}
-        <a href="{{ logout_url|escape }}">Sign out</a>
-        <a id="back_home" href="/">Back to Home</a>
+        <nav id="nav">
+            <a href="/">Back to Home</a>
+            <a href="{{ logout_url|escape }}">Sign out</a>
+        </nav>
     {% endif %}
 {% endblock %}
 

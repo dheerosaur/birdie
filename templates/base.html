@@ -1,40 +1,55 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--[if lt IE 7 ]> <html lang="en" class="no-js ie6"> <![endif]-->
+<!--[if IE 7 ]>    <html lang="en" class="no-js ie7"> <![endif]-->
+<!--[if IE 8 ]>    <html lang="en" class="no-js ie8"> <![endif]-->
+<!--[if IE 9 ]>    <html lang="en" class="no-js ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html lang="en" class="no-js"> <!--<![endif]-->
 <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
     <title>{% block title %}Birdie{% endblock %}</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
     <link href="/static/css/reset.css" rel="stylesheet" type="text/css"/>
     <link href="/static/css/style.css" rel="stylesheet" type="text/css"/>
     {% block head %}{% endblock %}
+    <script src="/static/js/modernizr-1.7.min.js"></script>
 </head>
 <body {% block bodyattr %}{% endblock %}>
-    <div id="container">
-        <header id="header">
-            {% block header %}
+    <header id="header">
+        {% block header %}
             <h1 id="logo"><a href="/">Birdie</a></h1>
-            <div class="login">
+            <nav id="nav">
+                <a href="/">Home</a>
+                <a href="/public">Public Timeline</a>
                 {% if user %}
-                    {% if curr_bird %}
-                    <span id="curr_username">{{ curr_bird.username }}</span> | 
-                    {% endif %}
                     <a href="{{ logout_url|escape }}">Sign out</a>
                 {% else %}
                     <a href="{{ login_url|escape }}">Sign in</a>
                 {% endif %}
-            </div>
-            <a id="public_link" href="/public">Public Timeline</a>
-            {% endblock %}
-        </header>
+            </nav>
+        {% endblock %}
+    </header>
+    <div id="container">
         <div id="error">
             {% if error %}
                 <small class="redtext">{{ error }}</small>
             {% endif %}
         </div>
         {% block body %}{% endblock %}
-        <footer>
-            {% block footer %}{% endblock %}
-        </footer>
     </div>
+    <footer id="footer">
+        {% block footer %}
+        <span>Copyright 2011 Dheeraj Sayala</span>
+        <span>Powered by Google App Engine, Python, jQuery, HTML5, CSS3</span>
+        {% endblock %}
+    </footer>
 
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
   <script>!window.jQuery && document.write(unescape('%3Cscript src="/static/js/jquery-1.5.2.min.js"%3E%3C/script%3E'))</script>
