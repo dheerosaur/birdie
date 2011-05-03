@@ -90,10 +90,10 @@ small, form>label, .pub_time {
 }
 #intro {
   position: absolute;
-  width: 11em;
+  width: 10.5em;
   top: 2em;
-  font-size: 130%;
-  font-family: "Droid Serif";
+  font-size: 135%;
+  font-family: "Amaranth";
   text-align: center;
 }
 #userdetails { 

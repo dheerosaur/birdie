@@ -2,13 +2,14 @@
 
 {% block body %}
 <div id="intro">
-   A twitter clone made with love by <a href="http://dheerajs.com">Dheeraj Sayala</a>
+    First time here?<br/> 
+    Let us create your profile.
 </div>
 <div id="main">
   <form id="register_form" action="/register" method="post">
       <input type="hidden" name="next" value="{{ request.uri|escape }}"/>
       <label for="username">Create a handle for yourself. eg: watson</label>
-      <input type="text" name="username" value="" />
+      <input id="create_handle" type="text" name="username" value="" />
       <label for="about">Describe yourself in less than 140 characters</label>
       <textarea name="about" value=""></textarea>
       <input type="submit" value="Create" />

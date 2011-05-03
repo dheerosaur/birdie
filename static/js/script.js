@@ -35,6 +35,7 @@ jQuery(function () {
 
     $(".ufbutton").val("Following");
 
+    $("#create_handle").focus();
     if ( $("body").hasClass("curr_user_timeline") ){
 
         var $tsub = $("#tweet_submit"), 
