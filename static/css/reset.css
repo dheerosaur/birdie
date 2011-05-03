@@ -53,9 +53,9 @@ sup { vertical-align: super; font-size: smaller; }
 pre {  padding: 15px;  white-space: pre;  white-space: pre-wrap;  white-space: pre-line;  word-wrap: break-word; }
 textarea { overflow: auto; } 
 
-::-moz-selection{ background: #dd9999; color:#fff; text-shadow: none; }
-::selection { background: #dd9999; color:#fff; text-shadow: none; } 
-a:link { -webkit-tap-highlight-color: #dd9999; } 
+::-moz-selection{ background: #97AE65; color:#fff; text-shadow: none; }
+::selection { background: #97AE65; color:#fff; text-shadow: none; } 
+a:link { -webkit-tap-highlight-color: #97AE65; } 
 
 .ie7 img { -ms-interpolation-mode: bicubic; }
 
