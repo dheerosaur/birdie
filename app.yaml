@@ -7,9 +7,11 @@ handlers:
 - url: /favicon\.ico
   static_files: static/images/favicon.ico
   upload: static/images/favicon\.ico
+  expiration: "10d"
 
 - url: /static
   static_dir: static
+  expiration: "5h"
 
 - url: .*
   script: main.py
